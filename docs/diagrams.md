@@ -1,10 +1,10 @@
 # Architecture diagrams in draw.io
 
-| | |
-|---|---|
-| **Author** | Wojtek Ruchlewicz, agreed with the architecture team |
-| **Status** | Draft for review |
-| **Last updated** | 2026-08 |
+|  |  |
+| --- | --- |
+| **Author** | Wojciech Ruchlewicz |
+| **Status** | Draft |
+| **Last updated** | 2026-08-15 |
 
 **Problem:**
 Architecture diagrams have so far been drawn in as many styles as there were authors. Each one stayed readable to the person who drew it and expensive to read for everyone else. Review discussions regularly drifted onto notation instead of architecture.
@@ -108,9 +108,9 @@ The complete palette lives in a single file, with hex codes labelled under every
 The notation rests on three independent channels. Each encodes a different dimension, so no piece of information is conveyed twice.
 
 | Channel | Encodes | Values |
-|---|---|---|
+| --- | --- | --- |
 | **Shape** | broad category | rectangle (service, application, component, job), upright cylinder (data store), horizontal cylinder or pipe (queue, topic), person (human role) |
-| **Colour** | scope | white `#FFFFFF` in scope, grey `#F0F0F0` outside our control, UBS red `#E60000` border on a `#FDECEC` fill for the subject of the diagram |
+| **Colour** | scope | white `#FFFFFF` in scope, grey `#F0F0F0` outside our control, red `#E60000` border on a `#FDECEC` fill for the subject of the diagram |
 | **Text** | exact type and technology | `«Microservice / Spring Boot»`, `«Kafka topic»` |
 
 Mapping colour to scope follows the convention used in the C4 examples, where grey marks an existing or third-party system. The C4 model itself does not prescribe colours; it only requires the encoding to be consistent and documented. That role is served here by the palette.
