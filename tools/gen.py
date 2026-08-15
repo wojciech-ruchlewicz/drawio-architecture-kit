@@ -96,9 +96,11 @@ def shape_style(shape, fill, stroke):
 
 
 def html_label(stereotype, name, desc=None):
-    p = ['<div style="line-height:1.3">',
-         '<font style="font-size:%dpx;color:%s">&laquo;%s&raquo;</font><br>' % (FS_SMALL, TEXT_SECONDARY, stereotype),
-         '<b style="font-size:%dpx;color:%s">%s</b>' % (FS_NAME, TEXT_PRIMARY, name)]
+    p = ['<div style="line-height:1.3">']
+    if stereotype:
+        p.append('<font style="font-size:%dpx;color:%s">&laquo;%s&raquo;</font><br>'
+                 % (FS_SMALL, TEXT_SECONDARY, stereotype))
+    p.append('<b style="font-size:%dpx;color:%s">%s</b>' % (FS_NAME, TEXT_PRIMARY, name))
     if desc:
         p.append('<br><font style="font-size:%dpx;color:%s">%s</font>' % (FS_SMALL, TEXT_SECONDARY, desc))
     p.append("</div>")
@@ -152,10 +154,11 @@ class Diagram:
                          style=shape_style(shape, fill, stroke), value="")
 
     def edge(self, kind, label, source=None, target=None, exit_=None, entry=None,
-             p0=None, p1=None):
+             p0=None, p1=None, both=False):
         return self._add(kind="edge", etype=kind, label=label, source=source, target=target,
-                         exit_=exit_, entry=entry, p0=p0, p1=p1,
-                         style=edge_style(kind) + (
+                         exit_=exit_, entry=entry, p0=p0, p1=p1, both=both,
+                         style=edge_style(kind)
+                         + ("startArrow=blockThin;startFill=1;startSize=6;" if both else "") + (
                              ("exitX=%s;exitY=%s;exitDx=0;exitDy=0;" % exit_) if exit_ else "") + (
                              ("entryX=%s;entryY=%s;entryDx=0;entryDy=0;" % entry) if entry else ""),
                          value=label)
@@ -290,8 +293,11 @@ def shape_outline(it):
 def render_block(it):
     out = shape_outline(it)
     x, y, w, h = it["x"], it["y"], it["w"], it["h"]
-    lines = [("«%s»" % it["stereotype"], FS_SMALL, TEXT_SECONDARY, False),
-             (it["name"], FS_NAME, TEXT_PRIMARY, True)]
+    lines = []
+    if it["stereotype"]:
+        lines.append(("«%s»" % it["stereotype"], FS_SMALL, TEXT_SECONDARY, False))
+    for ln in wrap(it["name"], w, FS_NAME, bold=True):
+        lines.append((ln, FS_NAME, TEXT_PRIMARY, True))
     if it["desc"]:
         for ln in wrap(it["desc"], w - (24 if it["shape"] == "pipe" else 0), FS_SMALL):
             lines.append((ln, FS_SMALL, TEXT_SECONDARY, False))
@@ -427,6 +433,8 @@ def render_edge(it, by_id):
     out = ['<path d="%s" fill="none" stroke="%s" stroke-width="%s" stroke-linejoin="round"%s/>'
            % (path_with_corners(pts), color, width, dash)]
     out.append(arrow_head(pts[-2], pts[-1], it["etype"] == "sync", color))
+    if it.get("both"):
+        out.append(arrow_head(pts[1], pts[0], it["etype"] == "sync", color))
     if it["label"]:
         tw = len(it["label"]) * FS_SMALL * 0.54 + 8
         # Etykieta na środku segmentu, który nie wchodzi na żaden bloczek.

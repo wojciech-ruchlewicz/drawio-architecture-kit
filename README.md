@@ -4,12 +4,12 @@ Zasady i gotowe elementy do rysowania diagramów architektonicznych w draw.io, t
 
 | Ścieżka | Co to |
 |---|---|
-| [`docs/01-spec-stylu.md`](docs/01-spec-stylu.md) | Zasady: kiedy draw.io a kiedy Mermaid, format pliku, poziomy C4, reguły wizualne, układ, checklista |
+| [`docs/diagramy.md`](docs/diagramy.md) | Zasady: kiedy draw.io a kiedy Mermaid, format pliku, poziomy C4, trzy kanały, reguły, przykłady, checklista |
 | [`templates/blank.drawio.svg`](templates/blank.drawio.svg) | **Pusty diagram** z gotowymi ustawieniami. Skopiuj i rysuj |
 | [`templates/palette.drawio.svg`](templates/palette.drawio.svg) | Paleta – wszystkie elementy z podpisanymi kolorami i wymiarami |
 | [`examples/components-example.drawio.svg`](examples/components-example.drawio.svg) | Kompletny diagram komponentów |
 | [`examples/topology-example.drawio.svg`](examples/topology-example.drawio.svg) | Kompletny diagram topologii |
-| [`tools/gen.py`](tools/gen.py) | Generator wszystkich czterech plików. Zmiana stylu = edycja stałych na górze skryptu i `python3 tools/gen.py`. Bez zależności. |
+| [`tools/gen.py`](tools/gen.py) | Generator wszystkich powyższych plików. Zmiana stylu = edycja stałych na górze skryptu i `python3 tools/gen.py`. Bez zależności. |
 
 ## Jak zacząć
 
