@@ -36,6 +36,8 @@ Diagrams are stored as **`*.drawio.svg`**. A file in this format is a hybrid. To
 
 SVG rather than PNG for four reasons: file size in the range of 20 to 60 kB instead of megabytes, a vector that stays sharp at any scale, text that is searchable and accessible, and a textual rather than binary blob in git. PNG has one advantage, a visual diff in the merge request, and it does not offset the fiftyfold overhead on repository size.
 
+The format is also legible to coding assistants. The source is text embedded in the file, so GitHub Copilot reads element names, labels and the containment hierarchy without any export step, and can generate diagrams in the same notation.
+
 **Naming and location:**
 
 ```
