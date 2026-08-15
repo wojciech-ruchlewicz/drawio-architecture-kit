@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generuje pliki *.drawio.svg: warstwę graficzną SVG + osadzony edytowalny mxfile
-w atrybucie `content`. Jedno źródło prawdy dla stylu — stałe poniżej.
+w atrybucie `content`. Jedno źródło prawdy dla stylu – stałe poniżej.
 
 Uruchomienie:  python3 tools/gen.py
 Bez zależności zewnętrznych.
@@ -24,12 +24,17 @@ STROKE_EXTERNAL, STROKE_AREA, STROKE_AREA_SOLID = "#999999", "#BBBBBB", "#DDDDDD
 # Kolor koduje ZAKRES (jak w C4), nie typ elementu. Typ niesie kształt i tekst.
 FILL_DEFAULT = "#FFFFFF"                                  # w zakresie diagramu
 FILL_EXTERNAL, STROKE_EXTERNAL_FILL = "#F0F0F0", "#999999"  # poza naszą kontrolą
-FILL_HIGHLIGHT, STROKE_HIGHLIGHT = "#FFF6E5", "#B37A00"     # temat diagramu
-FILL_GREEN, STROKE_GREEN = "#F2F7F3", "#6FA97F"
-FILL_RED, STROKE_RED = "#FBF3F3", "#C08585"
+FILL_HIGHLIGHT, STROKE_HIGHLIGHT = "#FDECEC", "#E60000"     # temat diagramu (czerwień UBS)
+
+# Strefy sieciowe – tylko na diagramach topologii, tylko na kontenerach.
+FILL_ZONE_EDGE, STROKE_ZONE_EDGE = "#FFF6E5", "#B37A00"     # strefa brzegowa
+FILL_ZONE_CORE, STROKE_ZONE_CORE = "#F0F4F8", "#4A6785"     # strefa wewnętrzna
 
 FS_SMALL, FS_NAME, FS_AREA, FS_TITLE = 11, 14, 12, 18
 W, H, H_COMPACT = 200, 80, 50
+W_NARROW = 120
+H_PIPE, H_PERSON = 60, 110
+H_CYL_S, H_PIPE_S, H_PERSON_S = 60, 50, 80
 RADIUS, RADIUS_AREA = 12, 16
 FONT = "Helvetica, Arial, sans-serif"
 
@@ -136,7 +141,8 @@ class Diagram:
         return self._add(kind="text", x=x, y=y, w=w, h=h, parent=parent, content=content,
                          size=size, color=color, bold=bold, align=align,
                          style=TEXT_STYLE % (align, size, color, "fontStyle=1;" if bold else ""),
-                         value=content)
+                         value=SWATCH_RE.sub(
+                             lambda m: '<font color="%s">\u25a0</font> ' % m.group(1), content))
 
     def swatch(self, x, y, w, h, fill, stroke, dashed=False, parent="1", shape="rect"):
         return self._add(kind="swatch", shape=shape, x=x, y=y, w=w, h=h, parent=parent,
@@ -216,8 +222,24 @@ def wrap(text, width_px, size, bold=False):
     return lines
 
 
+SWATCH_RE = __import__("re").compile(r"\{(#[0-9A-Fa-f]{6})\}")
+
+
 def esc(s):
     return html.escape(s, quote=False)
+
+
+def runs(line):
+    """Dzieli linię na fragmenty (tekst, kolor|None). {#RRGGBB} staje się kwadratem."""
+    out, pos = [], 0
+    for m in SWATCH_RE.finditer(line):
+        if m.start() > pos:
+            out.append((line[pos:m.start()], None))
+        out.append(("\u25a0 ", m.group(1)))
+        pos = m.end()
+    if pos < len(line):
+        out.append((line[pos:], None))
+    return out or [(line, None)]
 
 
 def rounded_rect(x, y, w, h, r, fill, stroke, dashed, sw=1.5):
@@ -313,7 +335,18 @@ def render_text(it):
     out, cy = [], it["y"] + (it["h"] - len(lines) * it["size"] * 1.35) / 2
     for ln in lines:
         cy += it["size"] * 1.35
-        out.append(svg_text(tx, cy - it["size"] * 0.32, ln, it["size"], it["color"], it["bold"], anchor))
+        parts = runs(ln)
+        if len(parts) == 1 and parts[0][1] is None:
+            out.append(svg_text(tx, cy - it["size"] * 0.32, ln, it["size"], it["color"],
+                                it["bold"], anchor))
+        else:
+            spans = "".join(
+                ('<tspan fill="%s">%s</tspan>' % (col, esc(txt))) if col else esc(txt)
+                for txt, col in parts)
+            out.append('<text x="%g" y="%g" font-family="%s" font-size="%d" fill="%s"%s '
+                       'text-anchor="%s">%s</text>'
+                       % (tx, cy - it["size"] * 0.32, FONT, it["size"], it["color"],
+                          ' font-weight="bold"' if it["bold"] else "", anchor, spans))
     return out
 
 
@@ -322,7 +355,7 @@ def anchor_point(it, frac):
 
 
 def route(p0, p1, exit_, entry):
-    """Prosty router ortogonalny — L lub Z, jak draw.io dla prostych przypadków."""
+    """Prosty router ortogonalny – L lub Z, jak draw.io dla prostych przypadków."""
     if exit_ is None:
         return [p0, p1]
     horiz_out = float(exit_[0]) in (0.0, 1.0)
@@ -394,7 +427,7 @@ def render_edge(it, by_id):
     if it["label"]:
         tw = len(it["label"]) * FS_SMALL * 0.54 + 8
         # Etykieta na środku segmentu, który nie wchodzi na żaden bloczek.
-        # Przy remisie wygrywa dłuższy segment — tam jest najwięcej powietrza.
+        # Przy remisie wygrywa dłuższy segment – tam jest najwięcej powietrza.
         obstacles = [o for o in by_id.values() if o["kind"] in ("block", "swatch", "actor")]
 
         def collides(cx, cy):
@@ -465,176 +498,171 @@ def write(path, d):
 # ══════════════════════════════════════════════════════════ PALETTE
 
 p = Diagram("Palette")
-p.text(40, 20, 1000, 26, "Architecture diagram palette", FS_TITLE, TEXT_PRIMARY, True)
-p.text(40, 48, 1000, 16, "Three independent channels: shape = category, colour = scope, "
+p.text(40, 20, 1100, 26, "Architecture diagram palette", FS_TITLE, TEXT_PRIMARY, True)
+p.text(40, 48, 1100, 16, "Three independent channels: shape = category, colour = scope, "
                          "text = exact type and technology.")
 
-# --- 1 · kształt = kategoria
-p.text(40, 92, 600, 20, "1 · Shape — what kind of thing it is", FS_NAME, TEXT_SECONDARY, True)
-p.block(40, 126, "Microservice · .NET 8", "Order Processor", "Owns the order lifecycle")
-p.text(40, 232, 240, 30, "Rectangle — service, application,<br>component, job", FS_SMALL, TEXT_MUTED)
+# --- 1 · kształt
+p.text(40, 92, 600, 20, "1 / Shape – what kind of thing it is", FS_NAME, TEXT_SECONDARY, True)
+p.block(40, 126, "Microservice / Spring Boot", "Execution Engine", "Routes client orders to venues")
+p.text(40, 232, 250, 30, "Rectangle – service, application,<br>component, job", FS_SMALL, TEXT_MUTED)
 
-p.block(300, 126, "Azure SQL", "Orders DB", shape="cylinder")
-p.text(300, 232, 240, 30, "Standing cylinder — data store<br>(database, blob, cache)", FS_SMALL, TEXT_MUTED)
+p.block(300, 126, "PostgreSQL", "Orders DB", shape="cylinder")
+p.text(300, 232, 250, 30, "Standing cylinder – data store<br>(database, blob, cache)", FS_SMALL, TEXT_MUTED)
 
-p.block(560, 141, "Service Bus Topic", "order-events", shape="pipe", h=60)
-p.text(560, 232, 240, 30, "Lying cylinder (pipe) — queue,<br>topic, event bus", FS_SMALL, TEXT_MUTED)
+p.block(560, 141, "Kafka topic", "trade-events", shape="pipe", h=H_PIPE)
+p.text(560, 232, 250, 30, "Lying cylinder (pipe) – queue,<br>topic, event stream", FS_SMALL, TEXT_MUTED)
 
-p.block(820, 116, "Person", "Warehouse operator", "Picks and dispatches orders",
-        shape="person", h=110)
-p.text(820, 232, 240, 30, "Person — human role<br>(shape=mxgraph.c4.person)", FS_SMALL, TEXT_MUTED)
+p.block(820, 116, "Person", "Sales trader", "Captures client orders",
+        shape="person", h=H_PERSON)
+p.text(820, 232, 250, 30, "Person – human role<br>(shape=mxgraph.c4.person)", FS_SMALL, TEXT_MUTED)
 
-# --- 2 · kolor = zakres
-p.text(40, 292, 600, 20, "2 · Colour — how much of it is ours", FS_NAME, TEXT_SECONDARY, True)
-p.block(40, 326, "Microservice · .NET 8", "Order Processor", "Owns the order lifecycle")
-p.text(40, 416, 240, 30, "In scope — #FFFFFF / #333333", FS_SMALL, TEXT_MUTED)
+# --- 2 · warianty rozmiaru
+p.text(40, 288, 700, 20, "2 / Variants – same meaning, less room", FS_NAME, TEXT_SECONDARY, True)
+p.block(40, 330, "REST API / Spring Boot", "Order Gateway", h=H_COMPACT)
+p.text(40, 400, 250, 30, "Compact rectangle – 200 x 50,<br>no description line", FS_SMALL, TEXT_MUTED)
 
-p.block(300, 326, "External System", "Payment Provider", "Authorises and settles payments",
+p.block(300, 330, "Adapter", "FIX Adapter", w=W_NARROW, h=H_COMPACT)
+p.text(300, 400, 160, 30, "Narrow rectangle – 120 x 50,<br>adapters, gateways, sidecars", FS_SMALL, TEXT_MUTED)
+
+p.block(470, 325, "PostgreSQL", "Orders", shape="cylinder", w=W_NARROW, h=H_CYL_S)
+p.text(470, 400, 160, 30, "Small cylinder<br>120 x 60", FS_SMALL, TEXT_MUTED)
+
+p.block(650, 330, "Kafka", "trades", shape="pipe", w=W_NARROW, h=H_PIPE_S)
+p.text(650, 400, 160, 30, "Small pipe<br>120 x 50", FS_SMALL, TEXT_MUTED)
+
+p.block(830, 310, "Person", "Trader", shape="person", w=W_NARROW, h=H_PERSON_S)
+p.text(830, 400, 160, 30, "Small person<br>120 x 80", FS_SMALL, TEXT_MUTED)
+
+# --- 3 · kolor = zakres
+p.text(40, 456, 700, 20, "3 / Colour – how much of it is ours", FS_NAME, TEXT_SECONDARY, True)
+p.block(40, 490, "Microservice / Spring Boot", "Execution Engine", "Routes client orders to venues")
+p.text(40, 578, 250, 30, "In scope<br>{#FFFFFF}#FFFFFF / {#333333}#333333", FS_SMALL, TEXT_MUTED)
+
+p.block(300, 490, "External System", "Reference Data", "Instrument and counterparty master",
         fill=FILL_EXTERNAL, stroke=STROKE_EXTERNAL_FILL)
-p.text(300, 416, 240, 30, "Out of scope, third party<br>#F0F0F0 / #999999", FS_SMALL, TEXT_MUTED)
+p.text(300, 578, 250, 30, "Out of scope, third party<br>{#F0F0F0}#F0F0F0 / {#999999}#999999",
+       FS_SMALL, TEXT_MUTED)
 
-p.block(560, 326, "Microservice · .NET 8", "Shipment Planner", "The subject of this diagram",
+p.block(560, 490, "Microservice / Python", "Position Keeper", "The subject of this diagram",
         fill=FILL_HIGHLIGHT, stroke=STROKE_HIGHLIGHT)
-p.text(560, 416, 240, 30, "Highlight, at most one per diagram<br>#FFF6E5 / #B37A00", FS_SMALL, TEXT_MUTED)
+p.text(560, 578, 250, 30, "Highlight, at most one per diagram<br>{#FDECEC}#FDECEC / {#E60000}#E60000",
+       FS_SMALL, TEXT_MUTED)
 
-p.block(820, 341, "API", "Order API", h=H_COMPACT)
-p.text(820, 416, 240, 30, "Compact variant — 200 × 50,<br>no description", FS_SMALL, TEXT_MUTED)
-
-# --- 3 · obszary
-p.text(40, 476, 600, 20, "3 · Areas (containers)", FS_NAME, TEXT_SECONDARY, True)
+# --- 4 · obszary
+p.text(40, 634, 700, 20, "4 / Areas (containers)", FS_NAME, TEXT_SECONDARY, True)
 _areas = [
-    (40, "none", STROKE_AREA, True, "Bounded Context: Ordering",
-     "Soft boundary — dashed, no fill<br>#BBBBBB"),
-    (360, "none", STROKE_AREA_SOLID, False, "Namespace: orders",
-     "Hard boundary — solid, no fill<br>#DDDDDD"),
-    (680, FILL_GREEN, STROKE_GREEN, False, "Green Zone",
-     "Green Zone — topology only<br>#F2F7F3 / #6FA97F"),
-    (1000, FILL_RED, STROKE_RED, False, "Red Zone",
-     "Red Zone — topology only<br>#FBF3F3 / #C08585"),
+    (40, "none", STROKE_AREA, True, "Bounded Context: Order Execution",
+     "Soft boundary – dashed, no fill<br>{#BBBBBB}#BBBBBB"),
+    (360, "none", STROKE_AREA_SOLID, False, "Namespace: execution",
+     "Hard boundary – solid, no fill<br>{#DDDDDD}#DDDDDD"),
+    (680, FILL_ZONE_EDGE, STROKE_ZONE_EDGE, False, "Perimeter zone",
+     "Network zone, topology only<br>{#FFF6E5}#FFF6E5 / {#B37A00}#B37A00"),
+    (1000, FILL_ZONE_CORE, STROKE_ZONE_CORE, False, "Internal zone",
+     "Network zone, topology only<br>{#F0F4F8}#F0F4F8 / {#4A6785}#4A6785"),
 ]
 for x, fill, stroke, dashed, title, cap in _areas:
-    a = p.area(x, 510, 280, 130, title, fill=fill, stroke=stroke, dashed=dashed)
-    p.block(x + 40, 560, "AKS Deployment", "Component", h=H_COMPACT, parent=a)
-    p.text(x, 650, 280, 30, cap, FS_SMALL, TEXT_MUTED)
+    a = p.area(x, 668, 280, 130, title, fill=fill, stroke=stroke, dashed=dashed)
+    p.block(x + 40, 718, "AKS Deployment", "Component", h=H_COMPACT, parent=a)
+    p.text(x, 808, 280, 30, cap, FS_SMALL, TEXT_MUTED)
 
-# --- 4 · strzałki
-p.text(40, 708, 600, 20, "4 · Connectors", FS_NAME, TEXT_SECONDARY, True)
+# --- 5 · strzałki
+p.text(40, 864, 600, 20, "5 / Connectors", FS_NAME, TEXT_SECONDARY, True)
 for i, (kind, lbl, cap) in enumerate([
-    ("sync", "fetches customer profile", "Synchronous call — solid, filled head · #888888, 2px"),
-    ("async", "publishes OrderCreated", "Asynchronous message — dashed, open head"),
-    ("dep", "reads configuration", "Logical dependency — dotted · #999999, 1.5px"),
+    ("sync", "fetches instrument data", "Synchronous call – solid, filled head / {#888888}#888888, 2px"),
+    ("async", "publishes OrderExecuted", "Asynchronous message – dashed, open head"),
+    ("dep", "reads configuration", "Logical dependency – dotted / {#999999}#999999, 1.5px"),
 ]):
-    y = 756 + i * 56
+    y = 912 + i * 56
     p.edge(kind, lbl, p0=(60, y), p1=(400, y))
-    p.text(40, y + 12, 460, 16, cap, FS_SMALL, TEXT_MUTED)
-
-# --- 5 · legenda
-p.text(560, 708, 400, 20, "5 · Legend block", FS_NAME, TEXT_SECONDARY, True)
-lg = p.area(560, 746, 300, 172, "Legend", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
-for i, (f, st, txt) in enumerate([
-    (FILL_DEFAULT, "rect", "Service / application"),
-    (FILL_DEFAULT, "cyl", "Data store"),
-    (FILL_DEFAULT, "pipe", "Queue / topic"),
-    (FILL_EXTERNAL, "rect", "Out of scope"),
-]):
-    y = 780 + i * 34
-    p.swatch(580, y, 56, 26, f, STROKE_BLOCK if f == FILL_DEFAULT else STROKE_EXTERNAL_FILL,
-             parent=lg, shape={"rect": "rect", "cyl": "cylinder", "pipe": "pipe"}[st])
-    p.text(648, y, 190, 26, txt, FS_SMALL, TEXT_SECONDARY, parent=lg)
+    p.text(40, y + 12, 480, 16, cap, FS_SMALL, TEXT_MUTED)
 
 # --- 6 · tokeny
-p.text(900, 708, 640, 20, "6 · Tokens", FS_NAME, TEXT_SECONDARY, True)
-tk = p.area(900, 746, 620, 160, "Type & geometry", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
-p.text(920, 780, 290, 90,
-       "18 bold — diagram title (#000000)<br>"
-       "14 bold — element name (#000000)<br>"
-       "12 bold — area title (#444444)<br>"
-       "11 — everything else (#444444)", FS_SMALL, TEXT_SECONDARY, parent=tk)
-p.text(1220, 780, 290, 90,
-       "grid 10 · block 200×80 · compact 200×50<br>"
-       "pipe 200×60 · person 200×110<br>"
-       "corner radius 12 · area radius 16<br>"
-       "gaps 60 horizontal / 40 vertical", FS_SMALL, TEXT_SECONDARY, parent=tk)
-p.text(900, 918, 620, 16,
-       "Cylinder and pipe carry name + «type» only — the domed cap eats the description line.",
+p.text(560, 864, 400, 20, "6 / Type", FS_NAME, TEXT_SECONDARY, True)
+ty = p.area(560, 902, 380, 150, "Four sizes, two colours",
+            fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+p.text(580, 936, 340, 100,
+       "18 bold – diagram title / {#000000}#000000<br>"
+       "14 bold – element name / {#000000}#000000<br>"
+       "12 bold – area title / {#444444}#444444<br>"
+       "11 – everything else / {#444444}#444444<br>"
+       "Helvetica, no other family", FS_SMALL, TEXT_SECONDARY, parent=ty)
+
+p.text(980, 864, 400, 20, "7 / Geometry", FS_NAME, TEXT_SECONDARY, True)
+gm = p.area(980, 902, 380, 150, "Grid 10, everything snaps",
+            fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+p.text(1000, 936, 340, 100,
+       "rectangle 200 x 80, compact 200 x 50<br>"
+       "narrow 120 x 50, pipe 200 x 60<br>"
+       "person 200 x 110, area radius 16<br>"
+       "corner radius 12, stroke 1.5<br>"
+       "gaps 60 horizontal, 40 vertical", FS_SMALL, TEXT_SECONDARY, parent=gm)
+
+p.text(560, 1064, 800, 16,
+       "Cylinder and pipe carry name + «type» only – the domed cap eats the description line.",
        FS_SMALL, TEXT_MUTED)
 
 
 # ══════════════════════════════════════════════════════════ EXAMPLE: COMPONENTS
 
 c = Diagram("Components")
-c.text(40, 24, 700, 26, "Order Management — logical components", FS_TITLE, TEXT_PRIMARY, True)
-c.text(40, 52, 700, 16, "Level: C4 L2 · Owner: Team Orders · Updated: 2026-08")
+c.text(40, 24, 800, 26, "Order Execution – logical components", FS_TITLE, TEXT_PRIMARY, True)
+c.text(40, 52, 800, 16, "Level: C4 L2 | Owner: Electronic Trading | Updated: 2026-08")
 
-b_cust = c.block(40, 200, "Person", "Customer", "Buys and tracks orders", shape="person",
-                 w=180, h=110)
-b_api = c.block(300, 215, "API · ASP.NET Core", "Order API", "Accepts and validates orders")
-ctx = c.area(640, 110, 640, 370, "Bounded Context: Ordering")
-b_proc = c.block(680, 170, "Microservice · .NET 8", "Order Processor",
-                 "Owns the order lifecycle", parent=ctx)
-b_db = c.block(1020, 170, "Azure SQL", "Orders DB", shape="cylinder", parent=ctx)
-b_bus = c.block(680, 330, "Service Bus Topic", "order-events", shape="pipe", h=60, parent=ctx)
-b_ship = c.block(1020, 320, "Microservice · .NET 8", "Shipment Planner",
-                 "Plans shipment once paid", parent=ctx)
-b_pay = c.block(300, 375, "External System", "Payment Provider", "Authorises payments",
+b_trader = c.block(40, 200, "Person", "Sales trader", "Captures client orders",
+                   shape="person", w=180, h=H_PERSON)
+b_gw = c.block(300, 215, "REST API / Spring Boot", "Order Gateway",
+               "Validates and enriches client orders")
+ctx = c.area(640, 110, 640, 370, "Bounded Context: Order Execution")
+b_exec = c.block(680, 170, "Microservice / Spring Boot", "Execution Engine",
+                 "Routes orders to trading venues", parent=ctx)
+b_db = c.block(1020, 170, "PostgreSQL", "Orders DB", shape="cylinder", parent=ctx)
+b_bus = c.block(680, 330, "Kafka topic", "trade-events", shape="pipe", h=H_PIPE, parent=ctx)
+b_pos = c.block(1020, 320, "Microservice / Python", "Position Keeper",
+                "Maintains intraday positions", parent=ctx)
+b_ref = c.block(300, 375, "External System", "Reference Data",
+                "Instrument and counterparty master",
                 fill=FILL_EXTERNAL, stroke=STROKE_EXTERNAL_FILL)
 
-c.edge("sync", "places order", b_cust, b_api, ("1", "0.5"), ("0", "0.5"))
-c.edge("sync", "submits for fulfilment", b_api, b_proc, ("1", "0.5"), ("0", "0.5"))
-c.edge("sync", "reads / writes state", b_proc, b_db, ("1", "0.5"), ("0", "0.5"))
-c.edge("async", "publishes OrderCreated", b_proc, b_bus, ("0.5", "1"), ("0.5", "0"))
-c.edge("async", "subscribes OrderPaid", b_bus, b_ship, ("1", "0.5"), ("0", "0.5"))
-c.edge("sync", "authorises payment", b_api, b_pay, ("0.5", "1"), ("0.5", "0"))
-
-lg2 = c.area(1330, 300, 270, 172, "Legend", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
-for i, (f, st, txt) in enumerate([
-    (FILL_DEFAULT, "rect", "Service / application"),
-    (FILL_DEFAULT, "cylinder", "Data store"),
-    (FILL_DEFAULT, "pipe", "Queue / topic"),
-    (FILL_EXTERNAL, "rect", "Out of scope"),
-]):
-    y = 336 + i * 34
-    c.swatch(1350, y, 56, 26, f,
-             STROKE_BLOCK if f == FILL_DEFAULT else STROKE_EXTERNAL_FILL, parent=lg2, shape=st)
-    c.text(1418, y, 160, 26, txt, FS_SMALL, TEXT_SECONDARY, parent=lg2)
+c.edge("sync", "submits client order", b_trader, b_gw, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "forwards order (REST)", b_gw, b_exec, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "reads / writes order state", b_exec, b_db, ("1", "0.5"), ("0", "0.5"))
+c.edge("async", "publishes OrderExecuted", b_exec, b_bus, ("0.5", "1"), ("0.5", "0"))
+c.edge("async", "subscribes OrderExecuted", b_bus, b_pos, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "fetches instrument data (REST)", b_gw, b_ref, ("0.5", "1"), ("0.5", "0"))
 
 
 # ══════════════════════════════════════════════════════════ EXAMPLE: TOPOLOGY
 
 t = Diagram("Topology")
-t.text(40, 24, 700, 26, "Order Management — topology", FS_TITLE, TEXT_PRIMARY, True)
-t.text(40, 52, 700, 16, "Level: C4 Deployment · Owner: Team Orders · Updated: 2026-08")
+t.text(40, 24, 800, 26, "Order Execution – topology", FS_TITLE, TEXT_PRIMARY, True)
+t.text(40, 52, 800, 16, "Level: C4 Deployment | Owner: Electronic Trading | Updated: 2026-08")
 
-sub = t.area(40, 110, 1120, 480, "Subscription: sub-orders-prod (West Europe)")
-red = t.area(80, 170, 320, 400, "Red Zone — internet-facing",
-             fill=FILL_RED, stroke=STROKE_RED, dashed=False, parent=sub)
-t_fd = t.block(110, 230, "Azure Front Door", "Edge", "TLS termination, WAF, routing", parent=red)
-t_gw = t.block(110, 370, "App Service · P2v3", "Public Gateway",
-               "Authenticates traffic into Green Zone", parent=red)
+sub = t.area(40, 110, 1120, 480, "Subscription: sub-etrading-prod (West Europe)")
+edge_z = t.area(80, 170, 320, 400, "Perimeter zone – partner connectivity",
+                fill=FILL_ZONE_EDGE, stroke=STROKE_ZONE_EDGE, dashed=False, parent=sub)
+t_fd = t.block(110, 240, "Azure Front Door", "Edge", "TLS termination, WAF, routing", parent=edge_z)
+t_gw = t.block(110, 390, "App Service / P2v3", "Order Gateway",
+               "Authenticates partner traffic", parent=edge_z)
 
-green = t.area(440, 170, 680, 400, "Green Zone — private network",
-               fill=FILL_GREEN, stroke=STROKE_GREEN, dashed=False, parent=sub)
-aks = t.area(480, 230, 380, 300, "AKS: aks-orders-prod · namespace: orders",
-             fill="none", stroke=STROKE_AREA_SOLID, dashed=False, parent=green)
-t_proc = t.block(510, 290, "AKS Deployment · 3 replicas", "Order Processor",
-                 "HPA 3–10, limit 1 vCPU / 2 GiB", parent=aks)
-t.block(510, 410, "AKS Deployment · 2 replicas", "Shipment Planner",
-        "HPA 2–6, limit 0.5 vCPU / 1 GiB", parent=aks)
-t.block(900, 290, "Azure SQL · Business Critical", "Orders DB", shape="cylinder", parent=green)
-t.block(900, 420, "Service Bus · Premium", "order-events", shape="pipe", h=60, parent=green)
+core = t.area(440, 170, 680, 400, "Internal zone – trading network",
+              fill=FILL_ZONE_CORE, stroke=STROKE_ZONE_CORE, dashed=False, parent=sub)
+aks = t.area(480, 230, 380, 300, "AKS: aks-etrading-prod | namespace: execution",
+             fill="none", stroke=STROKE_AREA_SOLID, dashed=False, parent=core)
+t_exec = t.block(510, 290, "AKS Deployment / 3 replicas", "Execution Engine",
+                 "HPA 3-10, limit 1 vCPU / 2 GiB", parent=aks)
+t.block(510, 410, "AKS Deployment / 2 replicas", "Position Keeper",
+        "HPA 2-6, limit 0.5 vCPU / 1 GiB", parent=aks)
+t.block(900, 290, "Azure PostgreSQL", "Orders DB",
+        shape="cylinder", parent=core)
+t.block(900, 420, "Event Hubs / Kafka", "trade-events", shape="pipe", h=H_PIPE, parent=core)
 
 t.edge("sync", "routes traffic after WAF", t_fd, t_gw, ("0.5", "1"), ("0.5", "0"))
-t.edge("sync", "calls order API (Private Link)", t_gw, t_proc, ("1", "0.5"), ("0", "0.5"))
+t.edge("sync", "calls order API (Private Link)", t_gw, t_exec, ("1", "0.5"), ("0", "0.5"))
 
-lg3 = t.area(40, 630, 470, 110, "Legend — only zone crossings are drawn",
-             fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
-for i, (f, st, txt) in enumerate([
-    (FILL_RED, STROKE_RED, "Red Zone — exposed to public traffic"),
-    (FILL_GREEN, STROKE_GREEN, "Green Zone — private, no inbound internet"),
-]):
-    y = 666 + i * 30
-    t.swatch(60, y, 40, 20, f, st, parent=lg3)
-    t.text(110, y, 380, 20, txt, FS_SMALL, TEXT_SECONDARY, parent=lg3)
+t.text(40, 630, 900, 16,
+       "Only zone crossings are drawn. Dependencies that stay inside one zone belong "
+       "on the component diagram.", FS_SMALL, TEXT_MUTED)
 
 
 # ══════════════════════════════════════════════════════════ ZAPIS
