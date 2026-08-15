@@ -1,43 +1,43 @@
-# Diagramy architektoniczne
+# Architecture diagrams
 
-Jeden sposób rysowania diagramów komponentów i topologii, oparty na draw.io i na plikach `*.drawio.svg` trzymanych w repozytorium obok kodu.
+One way of drawing component and topology diagrams, based on draw.io and on `*.drawio.svg` files kept in the repository next to the code.
 
-## Co to daje
+## What it gives you
 
-**Diagram żyje w gicie razem z kodem.** Zmiana architektury i zmiana diagramu idą w jednym merge requeście i przechodzą to samo review. Nie ma osobnego miejsca, które trzeba pamiętać, żeby zaktualizować.
+**The diagram lives in git together with the code.** An architecture change and a diagram change travel in the same merge request and go through the same review. There is no separate place you have to remember to update.
 
-**Jeden plik jest jednocześnie obrazkiem i źródłem.** `*.drawio.svg` renderuje się w markdownie, GitLabie i MkDocs bez żadnego kroku budowania, a po kliknięciu otwiera się w edytorze. Żadnego eksportowania, żadnej pary „diagram i jego PNG".
+**One file is both the image and the source.** `*.drawio.svg` renders in markdown, GitLab and MkDocs with no build step, and opens in the editor on click. No exporting, no pairs of "the diagram and its PNG".
 
-**Edycja w VS Code, offline.** Wtyczka Draw.io Integration ma wbudowany edytor, więc treść diagramów nie opuszcza stacji roboczej.
+**Editing in VS Code, offline.** The Draw.io Integration extension has the editor built in, so diagram content does not leave the workstation.
 
-**Copilot to czyta i potrafi tym operować.** Źródło diagramu jest tekstem osadzonym w pliku, więc asystent widzi nazwy komponentów, opisy i etykiety strzałek. Ponieważ diagram leży obok kodu, można go zapytać, czy jeden nadal odpowiada drugiemu.
+**Copilot reads them and can work with them.** The diagram source is text embedded in the file, so the assistant sees component names, descriptions and arrow labels. Because the diagram sits next to the code, you can ask whether one still matches the other.
 
-**Gotowe elementy zamiast projektowania od zera.** Paleta powyżej zawiera wszystko, czego potrzeba. Rysowanie sprowadza się do kopiowania i podpisywania.
+**Ready-made elements instead of designing from scratch.** The palette contains everything you need. Drawing comes down to copying and labelling.
 
-## Jak zacząć
+## Getting started
 
-1. Zainstaluj wtyczkę VS Code **Draw.io Integration** (`hediet.vscode-drawio`).
-2. Skopiuj [`templates/blank.drawio.svg`](templates/blank.drawio.svg) do `docs/diagrams/<obszar>-components.drawio.svg`. Ustawienia diagramu są już w nim zapisane, zostaje uzupełnić nagłówek.
-3. Otwórz obok [`templates/palette.drawio.svg`](templates/palette.drawio.svg) i przeciągaj z niej elementy. `Ctrl+C` i `Ctrl+V` działają między zakładkami draw.io.
+1. Install the VS Code extension **Draw.io Integration** (`hediet.vscode-drawio`).
+2. Copy [`templates/blank.drawio.svg`](templates/blank.drawio.svg) to `docs/diagrams/<area>-components.drawio.svg`. The diagram settings are already saved in it, only the header needs filling in.
+3. Open [`templates/palette.drawio.svg`](templates/palette.drawio.svg) alongside and drag elements out of it. `Ctrl+C` and `Ctrl+V` work between draw.io tabs.
 
-Tyle wystarczy na pierwszy diagram. Reszta zasad, wraz z uzasadnieniami, jest w [specyfikacji](docs/diagrams.md).
+That is enough for a first diagram. The remaining rules, with the reasoning behind them, are in the [specification](docs/diagrams.md).
 
-## Jak to wygląda
+## What it looks like
 
-![Order Execution, komponenty logiczne](examples/components-example.drawio.svg)
+![Order Execution, logical components](examples/components-example.drawio.svg)
 
-Kolejne przykłady i pełen opis notacji: [`docs/diagrams.md`](docs/diagrams.md).
+Further examples and the full description of the notation: [`docs/diagrams.md`](docs/diagrams.md).
 
-## Paleta elementów
+## Element palette
 
-![Paleta elementów](templates/palette.drawio.svg)
+![Element palette](templates/palette.drawio.svg)
 
-## Zawartość repozytorium
+## Repository contents
 
-| Ścieżka | Rola |
+| Path | Role |
 |---|---|
-| [`docs/diagrams.md`](docs/diagrams.md) | Specyfikacja: format pliku, poziomy C4, reguły, układ, checklista |
-| [`templates/blank.drawio.svg`](templates/blank.drawio.svg) | Pusty diagram z gotowymi ustawieniami |
-| [`templates/palette.drawio.svg`](templates/palette.drawio.svg) | Paleta elementów |
-| [`examples/`](examples/) | Kompletne diagramy komponentów i topologii |
-| [`tools/gen.py`](tools/gen.py) | Generator palety, szablonu i przykładów |
+| [`docs/diagrams.md`](docs/diagrams.md) | Specification: file format, C4 levels, rules, layout, checklist |
+| [`templates/blank.drawio.svg`](templates/blank.drawio.svg) | Empty diagram with the settings in place |
+| [`templates/palette.drawio.svg`](templates/palette.drawio.svg) | Element palette |
+| [`examples/`](examples/) | Complete component and topology diagrams |
+| [`tools/gen.py`](tools/gen.py) | Generator for the palette, the template and the examples |
