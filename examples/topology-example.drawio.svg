@@ -1,46 +1,399 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1152px" height="654px" viewBox="24 8 1152 654" content="&lt;mxfile host=&quot;app.diagrams.net&quot; type=&quot;device&quot; version=&quot;24.7.17&quot;&gt;&lt;diagram id=&quot;d1&quot; name=&quot;Topology&quot;&gt;&lt;mxGraphModel dx=&quot;1400&quot; dy=&quot;900&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;0&quot; pageScale=&quot;1&quot; pageWidth=&quot;1600&quot; pageHeight=&quot;1200&quot; adaptiveColors=&quot;auto&quot; math=&quot;0&quot; shadow=&quot;0&quot;&gt;&lt;root&gt;&lt;mxCell id=&quot;0&quot; /&gt;&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot; /&gt;&lt;mxCell id=&quot;n1&quot; value=&quot;Order Execution – topology&quot; style=&quot;text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=18;fontColor=#000000;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;24&quot; width=&quot;800&quot; height=&quot;26&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n2&quot; value=&quot;Level: C4 Deployment | Owner: Electronic Trading | Updated: 2026-08&quot; style=&quot;text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#444444;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;52&quot; width=&quot;800&quot; height=&quot;16&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n3&quot; value=&quot;Subscription: sub-etrading-prod (West Europe)&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=32;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#444444;align=left;verticalAlign=top;spacingLeft=12;spacingTop=4;shadow=0;container=1;collapsible=0;fillColor=none;strokeColor=#BBBBBB;dashed=1;dashPattern=8 4;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;110&quot; width=&quot;1120&quot; height=&quot;480&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n4&quot; value=&quot;Perimeter zone – partner connectivity&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=32;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#444444;align=left;verticalAlign=top;spacingLeft=12;spacingTop=4;shadow=0;container=1;collapsible=0;fillColor=#FFF6E5;strokeColor=#B37A00;&quot; vertex=&quot;1&quot; parent=&quot;n3&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;60&quot; width=&quot;320&quot; height=&quot;400&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n5&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;Azure Front Door&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;Edge&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;TLS termination, WAF, routing&amp;lt;/font&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=24;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n4&quot;&gt;&lt;mxGeometry x=&quot;30&quot; y=&quot;70&quot; width=&quot;200&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n6&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;App Service / P2v3&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;Order Gateway&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;Authenticates partner traffic&amp;lt;/font&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=24;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n4&quot;&gt;&lt;mxGeometry x=&quot;30&quot; y=&quot;220&quot; width=&quot;200&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n7&quot; value=&quot;Internal zone – trading network&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=32;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#444444;align=left;verticalAlign=top;spacingLeft=12;spacingTop=4;shadow=0;container=1;collapsible=0;fillColor=#F0F4F8;strokeColor=#4A6785;&quot; vertex=&quot;1&quot; parent=&quot;n3&quot;&gt;&lt;mxGeometry x=&quot;400&quot; y=&quot;60&quot; width=&quot;680&quot; height=&quot;400&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n8&quot; value=&quot;AKS: aks-etrading-prod | namespace: execution&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=32;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#444444;align=left;verticalAlign=top;spacingLeft=12;spacingTop=4;shadow=0;container=1;collapsible=0;fillColor=none;strokeColor=#DDDDDD;&quot; vertex=&quot;1&quot; parent=&quot;n7&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;60&quot; width=&quot;380&quot; height=&quot;300&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n9&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;AKS Deployment / 3 replicas&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;Execution Engine&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;HPA 3-10, limit 1 vCPU / 2 GiB&amp;lt;/font&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=24;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n8&quot;&gt;&lt;mxGeometry x=&quot;30&quot; y=&quot;60&quot; width=&quot;200&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n10&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;AKS Deployment / 2 replicas&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;Position Keeper&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;HPA 2-6, limit 0.5 vCPU / 1 GiB&amp;lt;/font&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;absoluteArcSize=1;arcSize=24;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n8&quot;&gt;&lt;mxGeometry x=&quot;30&quot; y=&quot;180&quot; width=&quot;200&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n11&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;Azure PostgreSQL&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;Orders DB&amp;lt;/b&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n7&quot;&gt;&lt;mxGeometry x=&quot;460&quot; y=&quot;120&quot; width=&quot;200&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n12&quot; value=&quot;&amp;lt;div style=&amp;quot;line-height:1.3&amp;quot;&amp;gt;&amp;lt;font style=&amp;quot;font-size:11px;color:#444444&amp;quot;&amp;gt;&amp;amp;laquo;Event Hubs / Kafka&amp;amp;raquo;&amp;lt;/font&amp;gt;&amp;lt;br&amp;gt;&amp;lt;b style=&amp;quot;font-size:14px;color:#000000&amp;quot;&amp;gt;trade-events&amp;lt;/b&amp;gt;&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;direction=north;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=14;fontColor=#000000;align=center;verticalAlign=middle;shadow=0;fillColor=#FFFFFF;strokeColor=#333333;&quot; vertex=&quot;1&quot; parent=&quot;n7&quot;&gt;&lt;mxGeometry x=&quot;460&quot; y=&quot;250&quot; width=&quot;200&quot; height=&quot;60&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n13&quot; value=&quot;routes traffic after WAF&quot; style=&quot;edgeStyle=orthogonalEdgeStyle;rounded=1;arcSize=10;html=1;jumpStyle=arc;jumpSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#444444;labelBackgroundColor=#FFFFFF;strokeWidth=2;strokeColor=#888888;endArrow=blockThin;endFill=1;endSize=6;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;n5&quot; target=&quot;n6&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n14&quot; value=&quot;calls order API (Private Link)&quot; style=&quot;edgeStyle=orthogonalEdgeStyle;rounded=1;arcSize=10;html=1;jumpStyle=arc;jumpSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#444444;labelBackgroundColor=#FFFFFF;strokeWidth=2;strokeColor=#888888;endArrow=blockThin;endFill=1;endSize=6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;n6&quot; target=&quot;n9&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;n15&quot; value=&quot;Only zone crossings are drawn. Dependencies that stay inside one zone belong on the component diagram.&quot; style=&quot;text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;630&quot; width=&quot;900&quot; height=&quot;16&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
-<rect x="40" y="110" width="1120" height="480" rx="16" ry="16" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="52" y="130" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#444444" font-weight="bold" text-anchor="start">Subscription: sub-etrading-prod (West Europe)</text>
-<rect x="80" y="170" width="320" height="400" rx="16" ry="16" fill="#FFF6E5" stroke="#B37A00" stroke-width="1.5"/>
-<text x="92" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#444444" font-weight="bold" text-anchor="start">Perimeter zone – partner connectivity</text>
-<rect x="440" y="170" width="680" height="400" rx="16" ry="16" fill="#F0F4F8" stroke="#4A6785" stroke-width="1.5"/>
-<text x="452" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#444444" font-weight="bold" text-anchor="start">Internal zone – trading network</text>
-<rect x="480" y="230" width="380" height="300" rx="16" ry="16" fill="none" stroke="#DDDDDD" stroke-width="1.5"/>
-<text x="492" y="250" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#444444" font-weight="bold" text-anchor="start">AKS: aks-etrading-prod | namespace: execution</text>
-<rect x="110" y="240" width="200" height="80" rx="12" ry="12" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<text x="210" y="267.03" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«Azure Front Door»</text>
-<text x="210" y="284.97" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">Edge</text>
-<text x="210" y="300.78" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">TLS termination, WAF, routing</text>
-<rect x="110" y="390" width="200" height="80" rx="12" ry="12" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<text x="210" y="417.03" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«App Service / P2v3»</text>
-<text x="210" y="434.97" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">Order Gateway</text>
-<text x="210" y="450.78" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">Authenticates partner traffic</text>
-<rect x="510" y="290" width="200" height="80" rx="12" ry="12" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<text x="610" y="317.03" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«AKS Deployment / 3 replicas»</text>
-<text x="610" y="334.97" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">Execution Engine</text>
-<text x="610" y="350.78" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">HPA 3-10, limit 1 vCPU / 2 GiB</text>
-<rect x="510" y="410" width="200" height="80" rx="12" ry="12" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<text x="610" y="437.03" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«AKS Deployment / 2 replicas»</text>
-<text x="610" y="454.97" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">Position Keeper</text>
-<text x="610" y="470.78" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">HPA 2-6, limit 0.5 vCPU / 1 GiB</text>
-<path d="M 900 300 L 900 360 A 100 10 0 0 0 1100 360 L 1100 300 A 100 10 0 0 0 900 300 Z" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<path d="M 900 300 A 100 10 0 0 0 1100 300" fill="none" stroke="#333333" stroke-width="1.5"/>
-<text x="1000" y="329.455" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«Azure PostgreSQL»</text>
-<text x="1000" y="347.395" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">Orders DB</text>
-<path d="M 910 420 L 1090 420 A 10 30 0 0 1 1090 480 L 910 480 A 10 30 0 0 1 910 420 Z" fill="#FFFFFF" stroke="#333333" stroke-width="1.5"/>
-<path d="M 910 420 A 10 30 0 0 1 910 480" fill="none" stroke="#333333" stroke-width="1.5"/>
-<text x="1000" y="444.455" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">«Event Hubs / Kafka»</text>
-<text x="1000" y="462.395" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#000000" font-weight="bold" text-anchor="middle">trade-events</text>
-<path d="M 210 320 L 210 390" fill="none" stroke="#888888" stroke-width="2" stroke-linejoin="round"/>
-<path d="M 210 390 L 206.64 382 L 213.36 382 Z" fill="#888888" stroke="#888888" stroke-width="1"/>
-<rect x="134.72" y="346" width="150.56" height="16" fill="#FFFFFF"/>
-<text x="210" y="358" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">routes traffic after WAF</text>
-<path d="M 310 430 L 400 430 Q 410 430 410 420 L 410 340 Q 410 330 420 330 L 510 330" fill="none" stroke="#888888" stroke-width="2" stroke-linejoin="round"/>
-<path d="M 510 330 L 502 333.36 L 502 326.64 Z" fill="#888888" stroke="#888888" stroke-width="1"/>
-<rect x="316.9" y="371" width="186.2" height="16" fill="#FFFFFF"/>
-<text x="410" y="383" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="middle">calls order API (Private Link)</text>
-<text x="40" y="43.39" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#000000" font-weight="bold" text-anchor="start">Order Execution – topology</text>
-<text x="40" y="63.905" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#444444" text-anchor="start">Level: C4 Deployment | Owner: Electronic Trading | Updated: 2026-08</text>
-<text x="40" y="641.905" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#888888" text-anchor="start">Only zone crossings are drawn. Dependencies that stay inside one zone belong on the component diagram.</text>
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" style="background: transparent; background-color: transparent;" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1042px" height="683px" viewBox="-0.5 -0.5 1042 683" content="&lt;mxfile&gt;&lt;diagram id=&quot;d1&quot; name=&quot;Topology&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <defs/>
+    <g>
+        <g>
+            <rect x="0" y="1" width="360" height="20" fill="none" stroke="none" pointer-events="all"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 1px; height: 1px; padding-top: 11px; margin-left: 2px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; ">
+                                <div style="display: inline-block; font-size: 18px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: nowrap; ">
+                                    Order Execution – topology
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="2" y="16" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="18px" font-weight="bold">
+                        Order Execution – topology
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="0" y="31" width="360" height="10" fill="none" stroke="none" pointer-events="all"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 1px; height: 1px; padding-top: 36px; margin-left: 2px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #444444; ">
+                                <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; white-space: nowrap; ">
+                                    Level: C4 Deployment | Owner: Electronic Trading | Updated: 2026-08
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="2" y="39" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="11px">
+                        Level: C4 Deployment | Owner: Electronic Trading | Updated: 2026-...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="0" y="61" width="1040" height="600" rx="16" ry="16" fill="none" stroke="#bbbbbb" stroke-width="1.5" stroke-dasharray="4.5 4.5" pointer-events="all" style="stroke: light-dark(rgb(187, 187, 187), rgb(76, 76, 76));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 1022px; height: 1px; padding-top: 74px; margin-left: 20px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #444444; ">
+                                <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                    Subscription: sub-etrading-prod (West Europe)
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="20" y="86" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="12px" font-weight="bold">
+                        Subscription: sub-etrading-prod (West Europe)
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="40" y="121" width="280" height="340" rx="16" ry="16" fill="#fff6e5" stroke="#b37a00" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(255, 246, 229), rgb(33, 25, 11)); stroke: light-dark(rgb(179, 122, 0), rgb(175, 126, 21));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 262px; height: 1px; padding-top: 134px; margin-left: 60px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #444444; ">
+                                <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                    Perimeter zone – partner connectivity
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="60" y="146" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="12px" font-weight="bold">
+                        Perimeter zone – partner connectivity
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="80" y="181" width="200" height="80" rx="12" ry="12" fill="#ffffff" stroke="#333333" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 186px; height: 1px; padding-top: 221px; margin-left: 87px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «Azure Front Door»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            Edge
+                                        </b>
+                                        <br/>
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            TLS termination, WAF, routing
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="180" y="225" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «Azure Front Door»...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="80" y="341" width="200" height="80" rx="12" ry="12" fill="#ffffff" stroke="#333333" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 186px; height: 1px; padding-top: 381px; margin-left: 87px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «App Service / P2v3»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            Order Gateway
+                                        </b>
+                                        <br/>
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            Authenticates partner traffic
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="180" y="385" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «App Service / P2v3»...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="400" y="221" width="600" height="400" rx="16" ry="16" fill="#f0f4f8" stroke="#4a6785" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(240, 244, 248), rgb(24, 28, 31)); stroke: light-dark(rgb(74, 103, 133), rgb(131, 156, 182));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 582px; height: 1px; padding-top: 234px; margin-left: 420px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #444444; ">
+                                <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                    Internal zone – trading network
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="420" y="246" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="12px" font-weight="bold">
+                        Internal zone – trading network
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="440" y="281" width="280" height="300" rx="16" ry="16" fill="none" stroke="#dddddd" stroke-width="1.5" pointer-events="all" style="stroke: light-dark(rgb(221, 221, 221), rgb(47, 47, 47));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 262px; height: 1px; padding-top: 294px; margin-left: 460px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #444444; ">
+                                <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                    AKS: aks-etrading-prod | namespace: execution
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="460" y="306" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="12px" font-weight="bold">
+                        AKS: aks-etrading-prod | namespace: execution
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="480" y="341" width="200" height="80" rx="12" ry="12" fill="#ffffff" stroke="#333333" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 186px; height: 1px; padding-top: 381px; margin-left: 487px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «AKS Deployment / 3 replicas»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            Execution Engine
+                                        </b>
+                                        <br/>
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            HPA 3-10, limit 1 vCPU / 2 GiB
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="580" y="385" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «AKS Deployment / 3 replica...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="480" y="461" width="200" height="80" rx="12" ry="12" fill="#ffffff" stroke="#333333" stroke-width="1.5" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 186px; height: 1px; padding-top: 501px; margin-left: 487px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «AKS Deployment / 2 replicas»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            Position Keeper
+                                        </b>
+                                        <br/>
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            HPA 2-6, limit 0.5 vCPU / 1 GiB
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="580" y="505" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «AKS Deployment / 2 replica...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <path d="M 760 351 C 760 345.48 804.77 341 860 341 C 886.52 341 911.96 342.05 930.71 343.93 C 949.46 345.8 960 348.35 960 351 L 960 411 C 960 416.52 915.23 421 860 421 C 804.77 421 760 416.52 760 411 Z" fill="#ffffff" stroke="#333333" stroke-width="1.5" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+            <path d="M 960 351 C 960 356.52 915.23 361 860 361 C 804.77 361 760 356.52 760 351" fill="none" stroke="#333333" stroke-width="1.5" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 198px; height: 1px; padding-top: 390px; margin-left: 761px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «Azure PostgreSQL»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            Orders DB
+                                        </b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="860" y="394" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «Azure PostgreSQL»...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <path d="M 820 411 C 820 405.48 837.91 401 860 401 C 870.61 401 880.78 402.05 888.28 403.93 C 895.79 405.8 900 408.35 900 411 L 900 591 C 900 596.52 882.09 601 860 601 C 837.91 601 820 596.52 820 591 Z" fill="#ffffff" stroke="#333333" stroke-width="1.5" stroke-miterlimit="10" transform="rotate(270,860,501)" pointer-events="all" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+            <path d="M 900 411 C 900 416.52 882.09 421 860 421 C 837.91 421 820 416.52 820 411" fill="none" stroke="#333333" stroke-width="1.5" stroke-miterlimit="10" transform="rotate(270,860,501)" pointer-events="all" style="stroke: light-dark(rgb(51, 51, 51), rgb(193, 193, 193));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 175px; height: 1px; padding-top: 501px; margin-left: 781px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                                <div style="display: inline-block; font-size: 14px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ededed); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                    <div style="line-height:1.3">
+                                        <font style="font-size: 11px; color: light-dark(rgb(68, 68, 68), rgb(179, 179, 179));">
+                                            «Event Hubs / Kafka»
+                                        </font>
+                                        <br/>
+                                        <b style="font-size: 14px; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));">
+                                            trade-events
+                                        </b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="869" y="505" fill="#000000" font-family="&quot;Helvetica&quot;" font-size="14px" text-anchor="middle">
+                        «Event Hubs / Kafka»...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <path d="M 180 261 L 180 332.76" fill="none" stroke="#888888" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: light-dark(rgb(136, 136, 136), rgb(120, 120, 120));"/>
+            <path d="M 180 338.76 L 176 330.76 L 180 332.76 L 184 330.76 Z" fill="#888888" stroke="#888888" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(136, 136, 136), rgb(120, 120, 120)); stroke: light-dark(rgb(136, 136, 136), rgb(120, 120, 120));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 301px; margin-left: 180px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #444444; background-color: #FFF6E5; ">
+                                <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; background-color: light-dark(#FFF6E5, #21190b); white-space: nowrap; ">
+                                    routes traffic after WAF
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="180" y="304" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
+                        routes traffic after WAF
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <path d="M 280 381 L 471.76 381" fill="none" stroke="#888888" stroke-width="2" stroke-miterlimit="10" pointer-events="stroke" style="stroke: light-dark(rgb(136, 136, 136), rgb(120, 120, 120));"/>
+            <path d="M 477.76 381 L 469.76 385 L 471.76 381 L 469.76 377 Z" fill="#888888" stroke="#888888" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(136, 136, 136), rgb(120, 120, 120)); stroke: light-dark(rgb(136, 136, 136), rgb(120, 120, 120));"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 361px; margin-left: 360px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #444444; background-color: #FFFFFF; ">
+                                <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#444444, #b3b3b3); line-height: 1.2; pointer-events: all; background-color: light-dark(#FFFFFF, #121212); white-space: nowrap; ">
+                                    calls order API
+                                    <div>
+                                        (Private Link)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="360" y="364" fill="#444444" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
+                        calls order API...
+                    </text>
+                </switch>
+            </g>
+        </g>
+        <g>
+            <rect x="0" y="671" width="560" height="10" fill="none" stroke="none" pointer-events="all"/>
+        </g>
+        <g>
+            <g transform="translate(-0.5 -0.5)">
+                <switch>
+                    <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 1px; height: 1px; padding-top: 676px; margin-left: 2px;">
+                            <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #888888; ">
+                                <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#888888, #787878); line-height: 1.2; pointer-events: all; white-space: nowrap; ">
+                                    Only zone crossings are drawn. Dependencies that stay inside one zone belong on the component diagram.
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                    <text x="2" y="679" fill="#888888" font-family="&quot;Helvetica&quot;" font-size="11px">
+                        Only zone crossings are drawn. Dependencies that stay inside one zone belong on the component diagram.
+                    </text>
+                </switch>
+            </g>
+        </g>
+    </g>
+    <switch>
+        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
+        <a transform="translate(0,-5)" xlink:href="https://www.drawio.com/doc/faq/svg-export-text-problems" target="_blank">
+            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
+                Text is not SVG - cannot display
+            </text>
+        </a>
+    </switch>
 </svg>
