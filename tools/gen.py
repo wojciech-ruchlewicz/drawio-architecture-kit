@@ -1,0 +1,606 @@
+#!/usr/bin/env python3
+"""
+Generuje pliki *.drawio.svg: warstwę graficzną SVG + osadzony edytowalny mxfile
+w atrybucie `content`. Jedno źródło prawdy dla stylu — stałe poniżej.
+
+Uruchomienie:  python3 tools/gen.py
+Bez zależności zewnętrznych.
+"""
+
+import html
+import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+
+ROOT = os.environ.get("DIAG_ROOT",
+                      os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
+# ══════════════════════════════════════════════════════════ TOKENY
+
+TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED = "#000000", "#444444", "#888888"
+STROKE_BLOCK, STROKE_EDGE = "#333333", "#888888"
+STROKE_EXTERNAL, STROKE_AREA, STROKE_AREA_SOLID = "#999999", "#BBBBBB", "#DDDDDD"
+
+FILL_DEFAULT = "#FFFFFF"
+FILL_DATA, STROKE_DATA = "#F0F4F8", "#4A6785"
+FILL_BROKER, STROKE_BROKER = "#F5F0F8", "#6E5A85"
+FILL_HIGHLIGHT, STROKE_HIGHLIGHT = "#FFF6E5", "#B37A00"
+FILL_GREEN, STROKE_GREEN = "#F2F7F3", "#6FA97F"
+FILL_RED, STROKE_RED = "#FBF3F3", "#C08585"
+
+FS_SMALL, FS_NAME, FS_AREA, FS_TITLE = 11, 14, 12, 18
+W, H, H_COMPACT = 200, 80, 50
+RADIUS, RADIUS_AREA = 12, 16
+FONT = "Helvetica, Arial, sans-serif"
+
+# ══════════════════════════════════════════════════════════ STYLE draw.io
+
+_BLOCK = ("rounded=1;absoluteArcSize=1;arcSize=%d;whiteSpace=wrap;html=1;strokeWidth=1.5;"
+          "fontFamily=Helvetica;fontSize=%d;fontColor=%s;align=center;verticalAlign=middle;"
+          "spacingLeft=6;spacingRight=6;shadow=0;" % (RADIUS * 2, FS_NAME, TEXT_PRIMARY))
+_AREA = ("rounded=1;absoluteArcSize=1;arcSize=%d;whiteSpace=wrap;html=1;strokeWidth=1.5;"
+         "fontFamily=Helvetica;fontSize=%d;fontStyle=1;fontColor=%s;align=left;verticalAlign=top;"
+         "spacingLeft=12;spacingTop=4;shadow=0;container=1;collapsible=0;"
+         % (RADIUS_AREA * 2, FS_AREA, TEXT_SECONDARY))
+_EDGE = ("edgeStyle=orthogonalEdgeStyle;rounded=1;arcSize=10;html=1;jumpStyle=arc;jumpSize=8;"
+         "fontFamily=Helvetica;fontSize=%d;fontColor=%s;labelBackgroundColor=%s;"
+         % (FS_SMALL, TEXT_SECONDARY, FILL_DEFAULT))
+
+
+def block_style(fill, stroke, dashed=False):
+    s = _BLOCK + "fillColor=%s;strokeColor=%s;" % (fill, stroke)
+    return s + "dashed=1;dashPattern=6 4;" if dashed else s
+
+
+def area_style(fill, stroke, dashed=False):
+    s = _AREA + "fillColor=%s;strokeColor=%s;" % (fill, stroke)
+    return s + "dashed=1;dashPattern=8 4;" if dashed else s
+
+
+def edge_style(kind):
+    if kind == "sync":
+        return _EDGE + "strokeWidth=2;strokeColor=%s;endArrow=blockThin;endFill=1;endSize=6;" % STROKE_EDGE
+    if kind == "async":
+        return (_EDGE + "strokeWidth=2;strokeColor=%s;endArrow=open;endFill=0;endSize=8;"
+                        "dashed=1;dashPattern=6 4;" % STROKE_EDGE)
+    return (_EDGE + "strokeWidth=1.5;strokeColor=%s;endArrow=open;endFill=0;endSize=8;"
+                    "dashed=1;dashPattern=1 3;" % STROKE_EXTERNAL)
+
+
+TEXT_STYLE = ("text;html=1;align=%s;verticalAlign=middle;fontFamily=Helvetica;"
+              "fontSize=%d;fontColor=%s;%s")
+ACTOR_STYLE = ("shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;"
+               "outlineConnect=0;strokeColor=%s;strokeWidth=1.5;fontFamily=Helvetica;"
+               "fontSize=%d;fontColor=%s;" % (STROKE_BLOCK, FS_SMALL, TEXT_PRIMARY))
+CYLINDER_STYLE = ("shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;whiteSpace=wrap;html=1;"
+                  "fillColor=%s;strokeColor=%s;strokeWidth=1.5;fontFamily=Helvetica;fontSize=%d;"
+                  "fontColor=%s;align=center;verticalAlign=middle;shadow=0;"
+                  % (FILL_DATA, STROKE_DATA, FS_NAME, TEXT_PRIMARY))
+
+
+def html_label(stereotype, name, desc=None):
+    p = ['<div style="line-height:1.3">',
+         '<font style="font-size:%dpx;color:%s">&laquo;%s&raquo;</font><br>' % (FS_SMALL, TEXT_SECONDARY, stereotype),
+         '<b style="font-size:%dpx;color:%s">%s</b>' % (FS_NAME, TEXT_PRIMARY, name)]
+    if desc:
+        p.append('<br><font style="font-size:%dpx;color:%s">%s</font>' % (FS_SMALL, TEXT_SECONDARY, desc))
+    p.append("</div>")
+    return "".join(p)
+
+
+# ══════════════════════════════════════════════════════════ MODEL
+
+class Diagram:
+    def __init__(self, name):
+        self.name, self.items, self._n = name, [], 0
+
+    def _id(self):
+        self._n += 1
+        return "n%d" % self._n
+
+    def _add(self, **kw):
+        kw["id"] = self._id()
+        self.items.append(kw)
+        return kw["id"]
+
+    def block(self, x, y, stereotype, name, desc=None, fill=FILL_DEFAULT,
+              stroke=STROKE_BLOCK, dashed=False, w=W, h=H, parent="1", shape="rect"):
+        return self._add(kind="block", shape=shape, x=x, y=y, w=w, h=h, parent=parent,
+                         fill=fill, stroke=stroke, dashed=dashed,
+                         stereotype=stereotype, name=name, desc=desc,
+                         style=(CYLINDER_STYLE if shape == "cylinder" else block_style(fill, stroke, dashed)),
+                         value=html_label(stereotype, name, desc))
+
+    def area(self, x, y, w, h, title, fill="none", stroke=STROKE_AREA, dashed=True, parent="1"):
+        return self._add(kind="area", x=x, y=y, w=w, h=h, parent=parent, fill=fill,
+                         stroke=stroke, dashed=dashed, title=title,
+                         style=area_style(fill, stroke, dashed), value=title)
+
+    def actor(self, x, y, name, parent="1"):
+        return self._add(kind="actor", x=x, y=y, w=30, h=60, parent=parent, name=name,
+                         style=ACTOR_STYLE, value=name)
+
+    def text(self, x, y, w, h, content, size=FS_SMALL, color=TEXT_SECONDARY,
+             bold=False, align="left", parent="1"):
+        return self._add(kind="text", x=x, y=y, w=w, h=h, parent=parent, content=content,
+                         size=size, color=color, bold=bold, align=align,
+                         style=TEXT_STYLE % (align, size, color, "fontStyle=1;" if bold else ""),
+                         value=content)
+
+    def swatch(self, x, y, w, h, fill, stroke, dashed=False, parent="1"):
+        return self._add(kind="swatch", x=x, y=y, w=w, h=h, parent=parent, fill=fill,
+                         stroke=stroke, dashed=dashed,
+                         style=block_style(fill, stroke, dashed), value="")
+
+    def edge(self, kind, label, source=None, target=None, exit_=None, entry=None,
+             p0=None, p1=None):
+        return self._add(kind="edge", etype=kind, label=label, source=source, target=target,
+                         exit_=exit_, entry=entry, p0=p0, p1=p1,
+                         style=edge_style(kind) + (
+                             ("exitX=%s;exitY=%s;exitDx=0;exitDy=0;" % exit_) if exit_ else "") + (
+                             ("entryX=%s;entryY=%s;entryDx=0;entryDy=0;" % entry) if entry else ""),
+                         value=label)
+
+
+# ══════════════════════════════════════════════════════════ mxfile
+
+def build_mxfile(d):
+    mxfile = ET.Element("mxfile", {"host": "app.diagrams.net", "type": "device", "version": "24.7.17"})
+    dg = ET.SubElement(mxfile, "diagram", {"id": "d1", "name": d.name})
+    model = ET.SubElement(dg, "mxGraphModel", {
+        "dx": "1400", "dy": "900", "grid": "1", "gridSize": "10", "guides": "1", "tooltips": "1",
+        "connect": "1", "arrows": "1", "fold": "1", "page": "0", "pageScale": "1",
+        "pageWidth": "1600", "pageHeight": "1200", "adaptiveColors": "auto", "math": "0", "shadow": "0"})
+    root = ET.SubElement(model, "root")
+    ET.SubElement(root, "mxCell", {"id": "0"})
+    ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
+
+    by_id = {i["id"]: i for i in d.items if i["kind"] != "edge"}
+
+    def origin(pid):
+        p = by_id.get(pid)
+        return (p["x"], p["y"]) if p else (0, 0)
+
+    for it in d.items:
+        if it["kind"] == "edge":
+            a = {"id": it["id"], "value": it["value"], "style": it["style"],
+                 "edge": "1", "parent": "1"}
+            if it["source"]:
+                a["source"] = it["source"]
+            if it["target"]:
+                a["target"] = it["target"]
+            cell = ET.SubElement(root, "mxCell", a)
+            geo = ET.SubElement(cell, "mxGeometry", {"relative": "1", "as": "geometry"})
+            if it["p0"]:
+                ET.SubElement(geo, "mxPoint", {"x": str(it["p0"][0]), "y": str(it["p0"][1]),
+                                               "as": "sourcePoint"})
+                ET.SubElement(geo, "mxPoint", {"x": str(it["p1"][0]), "y": str(it["p1"][1]),
+                                               "as": "targetPoint"})
+        else:
+            cell = ET.SubElement(root, "mxCell", {
+                "id": it["id"], "value": it["value"], "style": it["style"],
+                "vertex": "1", "parent": it["parent"]})
+            ox, oy = origin(it["parent"])
+            ET.SubElement(cell, "mxGeometry", {
+                "x": str(it["x"] - ox), "y": str(it["y"] - oy),
+                "width": str(it["w"]), "height": str(it["h"]), "as": "geometry"})
+    return ET.tostring(mxfile, encoding="unicode")
+
+
+# ══════════════════════════════════════════════════════════ render SVG
+
+def wrap(text, width_px, size, bold=False):
+    per_char = size * (0.58 if bold else 0.54)
+    limit = max(1, int((width_px - 14) / per_char))
+    words, lines, cur = text.split(), [], ""
+    for word in words:
+        trial = (cur + " " + word).strip()
+        if len(trial) <= limit or not cur:
+            cur = trial
+        else:
+            lines.append(cur)
+            cur = word
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def esc(s):
+    return html.escape(s, quote=False)
+
+
+def rounded_rect(x, y, w, h, r, fill, stroke, dashed, sw=1.5):
+    dash = ' stroke-dasharray="6 4"' if dashed else ""
+    return ('<rect x="%g" y="%g" width="%g" height="%g" rx="%g" ry="%g" fill="%s" '
+            'stroke="%s" stroke-width="%s"%s/>' % (x, y, w, h, r, r, fill, stroke, sw, dash))
+
+
+def svg_text(x, y, content, size, color, bold=False, anchor="start"):
+    return ('<text x="%g" y="%g" font-family="%s" font-size="%d" fill="%s"%s '
+            'text-anchor="%s">%s</text>'
+            % (x, y, FONT, size, color, ' font-weight="bold"' if bold else "", anchor, esc(content)))
+
+
+def render_block(it):
+    out = []
+    if it["shape"] == "cylinder":
+        x, y, w, h, ry = it["x"], it["y"], it["w"], it["h"], 10
+        out.append('<path d="M %g %g L %g %g A %g %g 0 0 0 %g %g L %g %g A %g %g 0 0 0 %g %g Z" '
+                   'fill="%s" stroke="%s" stroke-width="1.5"/>'
+                   % (x, y + ry, x, y + h - ry, w / 2, ry, x + w, y + h - ry,
+                      x + w, y + ry, w / 2, ry, x, y + ry, it["fill"], it["stroke"]))
+        out.append('<path d="M %g %g A %g %g 0 0 0 %g %g" fill="none" stroke="%s" stroke-width="1.5"/>'
+                   % (x, y + ry, w / 2, ry, x + w, y + ry, it["stroke"]))
+    else:
+        out.append(rounded_rect(it["x"], it["y"], it["w"], it["h"], RADIUS,
+                                it["fill"], it["stroke"], it["dashed"]))
+    lines = [("«%s»" % it["stereotype"], FS_SMALL, TEXT_SECONDARY, False),
+             (it["name"], FS_NAME, TEXT_PRIMARY, True)]
+    if it["desc"]:
+        for ln in wrap(it["desc"], it["w"], FS_SMALL):
+            lines.append((ln, FS_SMALL, TEXT_SECONDARY, False))
+    total = sum(s * 1.35 for _, s, _, _ in lines)
+    cy = it["y"] + (it["h"] - total) / 2
+    if it["shape"] == "cylinder":
+        cy += 5
+    for txt, size, color, bold in lines:
+        cy += size * 1.35
+        out.append(svg_text(it["x"] + it["w"] / 2, cy - size * 0.32, txt, size, color, bold, "middle"))
+    return out
+
+
+def render_area(it):
+    return [rounded_rect(it["x"], it["y"], it["w"], it["h"], RADIUS_AREA,
+                         it["fill"], it["stroke"], it["dashed"]),
+            svg_text(it["x"] + 12, it["y"] + 20, it["title"], FS_AREA, TEXT_SECONDARY, True)]
+
+
+def render_actor(it):
+    x, y, w, h = it["x"], it["y"], it["w"], it["h"]
+    s = STROKE_BLOCK
+    out = ['<ellipse cx="%g" cy="%g" rx="%g" ry="%g" fill="none" stroke="%s" stroke-width="1.5"/>'
+           % (x + w / 2, y + h / 8, w / 4, h / 8, s),
+           '<path d="M %g %g L %g %g M %g %g L %g %g M %g %g L %g %g M %g %g L %g %g" '
+           'fill="none" stroke="%s" stroke-width="1.5"/>'
+           % (x + w / 2, y + h / 4, x + w / 2, y + 2 * h / 3,
+              x, y + h / 3, x + w, y + h / 3,
+              x + w / 2, y + 2 * h / 3, x, y + h,
+              x + w / 2, y + 2 * h / 3, x + w, y + h, s)]
+    out.append(svg_text(x + w / 2, y + h + 13, it["name"], FS_SMALL, TEXT_PRIMARY, False, "middle"))
+    return out
+
+
+def render_text(it):
+    anchor = {"left": "start", "center": "middle", "right": "end"}[it["align"]]
+    tx = it["x"] if it["align"] == "left" else (
+        it["x"] + it["w"] / 2 if it["align"] == "center" else it["x"] + it["w"])
+    lines = it["content"].split("<br>")
+    out, cy = [], it["y"] + (it["h"] - len(lines) * it["size"] * 1.35) / 2
+    for ln in lines:
+        cy += it["size"] * 1.35
+        out.append(svg_text(tx, cy - it["size"] * 0.32, ln, it["size"], it["color"], it["bold"], anchor))
+    return out
+
+
+def anchor_point(it, frac):
+    return (it["x"] + float(frac[0]) * it["w"], it["y"] + float(frac[1]) * it["h"])
+
+
+def route(p0, p1, exit_, entry):
+    """Prosty router ortogonalny — L lub Z, jak draw.io dla prostych przypadków."""
+    if exit_ is None:
+        return [p0, p1]
+    horiz_out = float(exit_[0]) in (0.0, 1.0)
+    horiz_in = entry is not None and float(entry[0]) in (0.0, 1.0)
+    if horiz_out and horiz_in:
+        if abs(p0[1] - p1[1]) < 1:
+            return [p0, p1]
+        mx = (p0[0] + p1[0]) / 2
+        return [p0, (mx, p0[1]), (mx, p1[1]), p1]
+    if not horiz_out and not horiz_in:
+        if abs(p0[0] - p1[0]) < 1:
+            return [p0, p1]
+        my = (p0[1] + p1[1]) / 2
+        return [p0, (p0[0], my), (p1[0], my), p1]
+    if horiz_out:
+        return [p0, (p1[0], p0[1]), p1]
+    return [p0, (p0[0], p1[1]), p1]
+
+
+def path_with_corners(pts, r=10):
+    d = ["M %g %g" % pts[0]]
+    for i in range(1, len(pts) - 1):
+        a, b, c = pts[i - 1], pts[i], pts[i + 1]
+        v1 = (b[0] - a[0], b[1] - a[1])
+        v2 = (c[0] - b[0], c[1] - b[1])
+        l1 = max(1e-6, (v1[0] ** 2 + v1[1] ** 2) ** 0.5)
+        l2 = max(1e-6, (v2[0] ** 2 + v2[1] ** 2) ** 0.5)
+        rr = min(r, l1 / 2, l2 / 2)
+        p_in = (b[0] - v1[0] / l1 * rr, b[1] - v1[1] / l1 * rr)
+        p_out = (b[0] + v2[0] / l2 * rr, b[1] + v2[1] / l2 * rr)
+        d.append("L %g %g" % p_in)
+        d.append("Q %g %g %g %g" % (b[0], b[1], p_out[0], p_out[1]))
+    d.append("L %g %g" % pts[-1])
+    return " ".join(d)
+
+
+def arrow_head(p_prev, p_end, filled, color, size=8):
+    dx, dy = p_end[0] - p_prev[0], p_end[1] - p_prev[1]
+    l = max(1e-6, (dx * dx + dy * dy) ** 0.5)
+    ux, uy = dx / l, dy / l
+    bx, by = p_end[0] - ux * size, p_end[1] - uy * size
+    w = size * 0.42
+    a = (bx - uy * w, by + ux * w)
+    b = (bx + uy * w, by - ux * w)
+    if filled:
+        return ('<path d="M %g %g L %g %g L %g %g Z" fill="%s" stroke="%s" stroke-width="1"/>'
+                % (p_end[0], p_end[1], a[0], a[1], b[0], b[1], color, color))
+    return ('<path d="M %g %g L %g %g L %g %g" fill="none" stroke="%s" stroke-width="1.5"/>'
+            % (a[0], a[1], p_end[0], p_end[1], b[0], b[1], color))
+
+
+def render_edge(it, by_id):
+    if it["source"]:
+        p0 = anchor_point(by_id[it["source"]], it["exit_"] or ("0.5", "0.5"))
+        p1 = anchor_point(by_id[it["target"]], it["entry"] or ("0.5", "0.5"))
+    else:
+        p0, p1 = it["p0"], it["p1"]
+    pts = route(p0, p1, it["exit_"], it["entry"])
+    color = STROKE_EDGE if it["etype"] in ("sync", "async") else STROKE_EXTERNAL
+    width = 2 if it["etype"] in ("sync", "async") else 1.5
+    dash = ""
+    if it["etype"] == "async":
+        dash = ' stroke-dasharray="6 4"'
+    elif it["etype"] == "dep":
+        dash = ' stroke-dasharray="1 3"'
+    out = ['<path d="%s" fill="none" stroke="%s" stroke-width="%s" stroke-linejoin="round"%s/>'
+           % (path_with_corners(pts), color, width, dash)]
+    out.append(arrow_head(pts[-2], pts[-1], it["etype"] == "sync", color))
+    if it["label"]:
+        tw = len(it["label"]) * FS_SMALL * 0.54 + 8
+        # Etykieta na środku segmentu, który nie wchodzi na żaden bloczek.
+        # Przy remisie wygrywa dłuższy segment — tam jest najwięcej powietrza.
+        obstacles = [o for o in by_id.values() if o["kind"] in ("block", "swatch", "actor")]
+
+        def collides(cx, cy):
+            for o in obstacles:
+                if (cx + tw / 2 > o["x"] and cx - tw / 2 < o["x"] + o["w"]
+                        and cy + 8 > o["y"] and cy - 8 < o["y"] + o["h"]):
+                    return True
+            return False
+
+        cands = []
+        for i in range(len(pts) - 1):
+            cx, cy = (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2
+            ln = ((pts[i][0] - pts[i + 1][0]) ** 2 + (pts[i][1] - pts[i + 1][1]) ** 2) ** 0.5
+            cands.append((collides(cx, cy), -ln, cx, cy))
+        _, _, mx_, my_ = min(cands)
+        out.append('<rect x="%g" y="%g" width="%g" height="%g" fill="%s"/>'
+                   % (mx_ - tw / 2, my_ - 9, tw, 16, FILL_DEFAULT))
+        out.append(svg_text(mx_, my_ + 3, it["label"], FS_SMALL, TEXT_SECONDARY, False, "middle"))
+    return out
+
+
+ORDER = {"area": 0, "swatch": 1, "block": 1, "actor": 1, "edge": 2, "text": 3}
+
+
+def render_svg(d, pad=16):
+    by_id = {i["id"]: i for i in d.items if i["kind"] != "edge"}
+    body = []
+    for it in sorted(d.items, key=lambda i: (ORDER[i["kind"]], d.items.index(i))):
+        if it["kind"] == "block":
+            body += render_block(it)
+        elif it["kind"] == "area":
+            body += render_area(it)
+        elif it["kind"] == "actor":
+            body += render_actor(it)
+        elif it["kind"] == "text":
+            body += render_text(it)
+        elif it["kind"] == "swatch":
+            body.append(rounded_rect(it["x"], it["y"], it["w"], it["h"], 6,
+                                     it["fill"], it["stroke"], it["dashed"]))
+        else:
+            body += render_edge(it, by_id)
+
+    xs = [i["x"] for i in d.items if i["kind"] != "edge"]
+    ys = [i["y"] for i in d.items if i["kind"] != "edge"]
+    xe = [i["x"] + i["w"] for i in d.items if i["kind"] != "edge"]
+    ye = [i["y"] + i["h"] + (16 if i["kind"] == "actor" else 0) for i in d.items if i["kind"] != "edge"]
+    for i in d.items:
+        if i["kind"] == "edge" and i["p0"]:
+            xs += [i["p0"][0], i["p1"][0]]; xe += [i["p0"][0], i["p1"][0]]
+            ys += [i["p0"][1], i["p1"][1]]; ye += [i["p0"][1], i["p1"][1]]
+    x0, y0 = min(xs) - pad, min(ys) - pad
+    w, h = max(xe) + pad - x0, max(ye) + pad - y0
+    return x0, y0, w, h, "\n".join(body)
+
+
+def write(path, d):
+    x0, y0, w, h, body = render_svg(d)
+    content = html.escape(build_mxfile(d), quote=True)
+    svg = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+           'version="1.1" width="%gpx" height="%gpx" viewBox="%g %g %g %g" content="%s">\n'
+           '%s\n</svg>\n' % (w, h, x0, y0, w, h, content, body))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(svg)
+    return len(svg)
+
+
+# ══════════════════════════════════════════════════════════ PALETTE
+
+p = Diagram("Palette")
+p.text(40, 24, 900, 26, "Architecture diagram palette", FS_TITLE, TEXT_PRIMARY, True)
+p.text(40, 52, 900, 16, "Copy elements from here. Colours below each element are fill / stroke.")
+
+p.text(40, 96, 500, 20, "1 · Blocks — 200 × 80", FS_NAME, TEXT_SECONDARY, True)
+_blocks = [
+    (40, FILL_DEFAULT, STROKE_BLOCK, False, "Microservice · .NET 8", "Order Processor",
+     "Owns the order lifecycle", "Component (default)<br>#FFFFFF / #333333"),
+    (300, FILL_DATA, STROKE_DATA, False, "Azure SQL", "Orders DB",
+     "System of record for orders", "Data store<br>#F0F4F8 / #4A6785"),
+    (560, FILL_BROKER, STROKE_BROKER, False, "Service Bus Topic", "order-events",
+     "Broadcasts domain events", "Broker / queue<br>#F5F0F8 / #6E5A85"),
+    (820, "none", STROKE_EXTERNAL, True, "External System", "Payment Provider",
+     "Authorises and settles payments", "External system<br>no fill / #999999, dashed"),
+    (1080, FILL_HIGHLIGHT, STROKE_HIGHLIGHT, False, "Microservice · .NET 8", "Shipment Planner",
+     "The subject of this diagram", "Highlight<br>#FFF6E5 / #B37A00"),
+]
+for x, fill, stroke, dashed, st, nm, ds, cap in _blocks:
+    p.block(x, 130, st, nm, ds, fill=fill, stroke=stroke, dashed=dashed)
+    p.text(x, 216, 240, 30, cap, FS_SMALL, TEXT_MUTED)
+
+p.block(1340, 130, "Azure SQL", "Orders DB", fill=FILL_DATA, stroke=STROKE_DATA, shape="cylinder")
+p.text(1340, 216, 240, 30, "OPEN QUESTION: cylinder instead of<br>rectangle for data stores",
+       FS_SMALL, TEXT_MUTED)
+
+p.text(40, 274, 500, 20, "2 · Variants", FS_NAME, TEXT_SECONDARY, True)
+p.block(40, 308, "API", "Order API", h=H_COMPACT)
+p.text(40, 364, 240, 16, "Compact — 200 × 50, no description", FS_SMALL, TEXT_MUTED)
+p.actor(315, 308, "Warehouse operator")
+p.text(300, 398, 240, 16, "Actor", FS_SMALL, TEXT_MUTED)
+
+p.text(40, 420, 500, 20, "3 · Areas (containers)", FS_NAME, TEXT_SECONDARY, True)
+_areas = [
+    (40, "none", STROKE_AREA, True, "Bounded Context: Ordering",
+     "Neutral — dashed, no fill<br>#BBBBBB"),
+    (360, "none", STROKE_AREA_SOLID, False, "Namespace: orders",
+     "Neutral — solid variant, less noise<br>#DDDDDD"),
+    (680, FILL_GREEN, STROKE_GREEN, False, "Green Zone",
+     "Green Zone<br>#F2F7F3 / #6FA97F"),
+    (1000, FILL_RED, STROKE_RED, False, "Red Zone",
+     "Red Zone<br>#FBF3F3 / #C08585"),
+]
+for x, fill, stroke, dashed, title, cap in _areas:
+    a = p.area(x, 454, 280, 130, title, fill=fill, stroke=stroke, dashed=dashed)
+    p.block(x + 40, 504, "AKS Deployment", "Component", h=H_COMPACT, parent=a)
+    p.text(x, 594, 280, 30, cap, FS_SMALL, TEXT_MUTED)
+
+p.text(40, 652, 500, 20, "4 · Connectors", FS_NAME, TEXT_SECONDARY, True)
+for i, (kind, lbl, cap) in enumerate([
+    ("sync", "fetches customer profile", "Synchronous call — solid, filled head · #888888, 2px"),
+    ("async", "publishes OrderCreated", "Asynchronous message — dashed, open head"),
+    ("dep", "reads configuration", "Logical dependency — dotted · #999999, 1.5px"),
+]):
+    y = 700 + i * 56
+    p.edge(kind, lbl, p0=(60, y), p1=(400, y))
+    p.text(40, y + 12, 460, 16, cap, FS_SMALL, TEXT_MUTED)
+
+p.text(560, 652, 500, 20, "5 · Legend block", FS_NAME, TEXT_SECONDARY, True)
+lg = p.area(560, 690, 280, 156, "Legend", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+for i, (f, s, dsh, txt) in enumerate([
+    (FILL_DEFAULT, STROKE_BLOCK, False, "Service / application"),
+    (FILL_DATA, STROKE_DATA, False, "Data store"),
+    (FILL_BROKER, STROKE_BROKER, False, "Broker / queue"),
+    ("none", STROKE_EXTERNAL, True, "External system"),
+]):
+    y = 726 + i * 30
+    p.swatch(580, y, 40, 20, f, s, dsh, parent=lg)
+    p.text(630, y, 190, 20, txt, FS_SMALL, TEXT_SECONDARY, parent=lg)
+
+p.text(880, 652, 640, 20, "6 · Tokens", FS_NAME, TEXT_SECONDARY, True)
+tk = p.area(880, 690, 640, 156, "Type & geometry", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+p.text(900, 722, 300, 90,
+       "18 bold — diagram title (#000000)<br>"
+       "14 bold — component name (#000000)<br>"
+       "12 bold — area title (#444444)<br>"
+       "11 — everything else (#444444)", FS_SMALL, TEXT_SECONDARY, parent=tk)
+p.text(1210, 722, 300, 90,
+       "grid 10 · block 200×80 · compact 200×50<br>"
+       "corner radius 12 · area radius 16<br>"
+       "gaps 60 horizontal / 40 vertical<br>"
+       "stroke 1.5 blocks, 2 connectors", FS_SMALL, TEXT_SECONDARY, parent=tk)
+
+p.text(880, 862, 640, 16,
+       "Dashed and filled are mutually exclusive: a dashed element has no fill.",
+       FS_SMALL, TEXT_MUTED)
+
+
+# ══════════════════════════════════════════════════════════ EXAMPLE: COMPONENTS
+
+c = Diagram("Components")
+c.text(40, 24, 700, 26, "Order Management — logical components", FS_TITLE, TEXT_PRIMARY, True)
+c.text(40, 52, 700, 16, "Level: C4 L2 · Owner: Team Orders · Updated: 2026-08")
+
+a_cli = c.actor(40, 220, "Customer")
+b_api = c.block(160, 210, "API · ASP.NET Core", "Order API", "Accepts and validates orders")
+ctx = c.area(420, 110, 640, 360, "Bounded Context: Ordering")
+b_proc = c.block(460, 170, "Microservice · .NET 8", "Order Processor",
+                 "Owns the order lifecycle", parent=ctx)
+b_db = c.block(800, 170, "Azure SQL", "Orders DB", "System of record for orders",
+               fill=FILL_DATA, stroke=STROKE_DATA, parent=ctx)
+b_bus = c.block(460, 310, "Service Bus Topic", "order-events", "Broadcasts domain events",
+                fill=FILL_BROKER, stroke=STROKE_BROKER, parent=ctx)
+b_ship = c.block(800, 310, "Microservice · .NET 8", "Shipment Planner",
+                 "Plans shipment once paid", parent=ctx)
+b_pay = c.block(160, 370, "External System", "Payment Provider", "Authorises payments",
+                fill="none", stroke=STROKE_EXTERNAL, dashed=True)
+
+c.edge("sync", "places order", a_cli, b_api, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "submits for fulfilment", b_api, b_proc, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "reads / writes state", b_proc, b_db, ("1", "0.5"), ("0", "0.5"))
+c.edge("async", "publishes OrderCreated", b_proc, b_bus, ("0.5", "1"), ("0.5", "0"))
+c.edge("async", "subscribes OrderPaid", b_bus, b_ship, ("1", "0.5"), ("0", "0.5"))
+c.edge("sync", "authorises payment", b_api, b_pay, ("0.5", "1"), ("0.5", "0"))
+
+lg2 = c.area(1110, 290, 260, 126, "Legend", fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+for i, (f, s, dsh, txt) in enumerate([
+    (FILL_DEFAULT, STROKE_BLOCK, False, "Service / application"),
+    (FILL_DATA, STROKE_DATA, False, "Data store"),
+    (FILL_BROKER, STROKE_BROKER, False, "Broker / queue"),
+]):
+    y = 326 + i * 30
+    c.swatch(1130, y, 40, 20, f, s, dsh, parent=lg2)
+    c.text(1180, y, 170, 20, txt, FS_SMALL, TEXT_SECONDARY, parent=lg2)
+
+
+# ══════════════════════════════════════════════════════════ EXAMPLE: TOPOLOGY
+
+t = Diagram("Topology")
+t.text(40, 24, 700, 26, "Order Management — topology", FS_TITLE, TEXT_PRIMARY, True)
+t.text(40, 52, 700, 16, "Level: C4 Deployment · Owner: Team Orders · Updated: 2026-08")
+
+sub = t.area(40, 110, 1120, 480, "Subscription: sub-orders-prod (West Europe)")
+red = t.area(80, 170, 320, 400, "Red Zone — internet-facing",
+             fill=FILL_RED, stroke=STROKE_RED, dashed=False, parent=sub)
+t_fd = t.block(110, 230, "Azure Front Door", "Edge", "TLS termination, WAF, routing", parent=red)
+t_gw = t.block(110, 370, "App Service · P2v3", "Public Gateway",
+               "Authenticates traffic into Green Zone", parent=red)
+
+green = t.area(440, 170, 680, 400, "Green Zone — private network",
+               fill=FILL_GREEN, stroke=STROKE_GREEN, dashed=False, parent=sub)
+aks = t.area(480, 230, 380, 300, "AKS: aks-orders-prod · namespace: orders",
+             fill="none", stroke=STROKE_AREA_SOLID, dashed=False, parent=green)
+t_proc = t.block(510, 290, "AKS Deployment · 3 replicas", "Order Processor",
+                 "HPA 3–10, limit 1 vCPU / 2 GiB", parent=aks)
+t.block(510, 410, "AKS Deployment · 2 replicas", "Shipment Planner",
+        "HPA 2–6, limit 0.5 vCPU / 1 GiB", parent=aks)
+t.block(900, 290, "Azure SQL · Business Critical", "Orders DB",
+        "Private Endpoint, geo-replica in NE", fill=FILL_DATA, stroke=STROKE_DATA, parent=green)
+t.block(900, 410, "Service Bus · Premium", "order-events",
+        "Private Endpoint, 1 messaging unit", fill=FILL_BROKER, stroke=STROKE_BROKER, parent=green)
+
+t.edge("sync", "routes traffic after WAF", t_fd, t_gw, ("0.5", "1"), ("0.5", "0"))
+t.edge("sync", "calls order API (Private Link)", t_gw, t_proc, ("1", "0.5"), ("0", "0.5"))
+
+lg3 = t.area(40, 630, 470, 110, "Legend — only zone crossings are drawn",
+             fill="none", stroke=STROKE_AREA_SOLID, dashed=False)
+for i, (f, s, txt) in enumerate([
+    (FILL_RED, STROKE_RED, "Red Zone — exposed to public traffic"),
+    (FILL_GREEN, STROKE_GREEN, "Green Zone — private, no inbound internet"),
+]):
+    y = 666 + i * 30
+    t.swatch(60, y, 40, 20, f, s, parent=lg3)
+    t.text(110, y, 380, 20, txt, FS_SMALL, TEXT_SECONDARY, parent=lg3)
+
+
+# ══════════════════════════════════════════════════════════ ZAPIS
+
+for path, diagram in [
+    ("templates/palette.drawio.svg", p),
+    ("examples/components-example.drawio.svg", c),
+    ("examples/topology-example.drawio.svg", t),
+]:
+    n = write(os.path.join(ROOT, path), diagram)
+    print("%-46s %6d B" % (path, n))
