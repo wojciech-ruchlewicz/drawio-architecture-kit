@@ -1,6 +1,6 @@
 # Diagramy architektoniczne — zasady
 
-**Wersja:** 0.3 · **Status:** propozycja do konsultacji
+**Wersja:** 0.4 · **Status:** propozycja do konsultacji
 
 Jeden system wizualny dla diagramów komponentów i topologii, tak żeby diagram narysowany przez dowolną osobę w zespole wyglądał jak diagram narysowany przez każdą inną. System jest celowo mały — jeśli reguła nie zarabia na siebie czytelnością, nie ma jej tutaj.
 
@@ -65,18 +65,31 @@ Cała paleta — kolory, rozmiary, typografia — jest w jednym pliku. Kody hex 
 
 ![Paleta elementów](../templates/palette.drawio.svg)
 
-Sześć reguł, które trzymają to w kupie:
+### Trzy niezależne kanały
 
-1. **Trzy strefy tekstu w bloczku.** Na górze stereotyp w guillemetach — czym rzecz *jest fizycznie* (`«Microservice · .NET 8»`). W środku nazwa logiczna — jak zespół nazywa to w rozmowie, nie nazwa repo ani zasobu w Azure. Na dole opis odpowiedzialności, maks. ~60 znaków. Jeśli opis się nie mieści, komponent ma prawdopodobnie zbyt szeroką odpowiedzialność — to wartościowy sygnał z samego rysowania.
-2. **Kolor koduje jedną oś na diagram.** Albo typ elementu (usługa / dane / broker / zewnętrzny), albo strefę (Green / Red). Nigdy oba naraz. Bazą jest monochrom; kolor jest zasobem rzadkim.
-3. **Kreska i wypełnienie się wykluczają.** Element kreskowany nie ma wypełnienia, element wypełniony ma linię ciągłą. Obie cechy komunikują to samo — „ten jest inny niż reszta" — więc łączenie ich to podwójne krzyczenie. Przy trzech poziomach zagnieżdżenia przechodź na linię ciągłą, bo nałożone kreski robią mory.
-4. **Kierunek strzałki = kto inicjuje**, nie dokąd płyną dane. Strzałka od API do bazy znaczy „API odpytuje bazę", nawet jeśli dane wracają w drugą stronę. Strzałki dwukierunkowe są zabronione — zawsze oznaczają, że autor nie przemyślał, kto inicjuje.
-5. **Każda strzałka ma etykietę: czasownik + obiekt.** `publikuje OrderCreated`, `zapisuje stan zamówienia`. Nie `HTTP`, nie `dane`, nie pustka. Protokół w nawiasie tylko wtedy, gdy naprawdę coś wnosi.
-6. **Bloczki tej samej kategorii mają identyczną szerokość.** Nierówne szerokości są najsilniejszym sygnałem, że diagram robiono w pośpiechu.
+Każdy kanał niesie inny wymiar. Dzięki temu nic nie jest zakodowane dwa razy i nie trzeba pilnować, „która oś jest dziś na kolorze".
 
-Legenda jest obowiązkowa, gdy diagram używa koloru semantycznie lub więcej niż jednego typu strzałki. Zawiera wyłącznie to, co faktycznie na nim występuje.
+| Kanał | Co koduje | Wartości |
+|---|---|---|
+| **Kształt** | zgrubna kategoria | prostokąt (usługa, aplikacja, komponent, job) · stojący walec (magazyn danych) · leżący walec / pipe (kolejka, topic) · person (rola ludzka) |
+| **Kolor** | zakres | biały = w zakresie · szary `#F0F0F0` = poza naszą kontrolą · piaskowy `#FFF6E5` = temat diagramu |
+| **Tekst** | dokładny typ i technologia | `«Microservice · .NET 8»`, `«AKS Deployment · 3 repliki»` |
 
-**Ikony Azure** — tylko na diagramach topologii, jako dekoracja maks. 32 px w rogu bloczka, nigdy zamiast bloczka. Albo wszystkie elementy danego typu mają ikonę, albo żaden. Na diagramach komponentów ikon nie używamy, bo tam liczy się abstrakcja od technologii.
+Kolor na osi zakresu to konwencja z przykładów C4 (tam szary = system, który już istnieje albo jest cudzy). Sam model C4 kolorów nie narzuca — wymaga tylko, żeby kodowanie było spójne i opisane w legendzie.
+
+### Siedem reguł
+
+1. **Trzy strefy tekstu w bloczku.** Na górze stereotyp w guillemetach — czym rzecz *jest fizycznie*. W środku nazwa logiczna — jak zespół nazywa to w rozmowie, nie nazwa repo ani zasobu w Azure. Na dole opis odpowiedzialności, maks. ~60 znaków. Jeśli opis się nie mieści, komponent ma prawdopodobnie zbyt szeroką odpowiedzialność — to wartościowy sygnał z samego rysowania.
+2. **Walec i pipe niosą tylko stereotyp i nazwę.** Kopuła zjada linię opisu; jeśli opis jest niezbędny, użyj prostokąta.
+3. **Jeden wyróżniony element na diagram.** Piaskowe wypełnienie oznacza temat diagramu albo element zmieniany w danym merge requeście. Dwa wyróżnienia to brak wyróżnienia.
+4. **Kreska i wypełnienie się wykluczają** — dotyczy obszarów. Obszar kreskowany nie ma wypełnienia, obszar wypełniony ma linię ciągłą. Obie cechy komunikują to samo, więc łączenie ich to podwójne krzyczenie. Kreska oznacza granicę umowną (bounded context, zakres diagramu), linia ciągła — granicę twardą (namespace, klaster). Przy trzech poziomach zagnieżdżenia zawsze linia ciągła, bo nałożone kreski robią mory.
+5. **Kierunek strzałki = kto inicjuje**, nie dokąd płyną dane. Strzałka od API do bazy znaczy „API odpytuje bazę", nawet jeśli dane wracają w drugą stronę. Strzałki dwukierunkowe są zabronione — zawsze oznaczają, że autor nie przemyślał, kto inicjuje.
+6. **Każda strzałka ma etykietę: czasownik + obiekt.** `publikuje OrderCreated`, `zapisuje stan zamówienia`. Nie `HTTP`, nie `dane`, nie pustka. Protokół w nawiasie tylko wtedy, gdy naprawdę coś wnosi.
+7. **Bloczki tej samej kategorii mają identyczną szerokość.** Nierówne szerokości są najsilniejszym sygnałem, że diagram robiono w pośpiechu.
+
+Legenda jest obowiązkowa zawsze i zawiera wyłącznie to, co faktycznie na diagramie występuje. Skoro kształt niesie znaczenie, czytelnik musi mieć gdzie sprawdzić, co znaczy walec — C4 stawia ten wymóg wprost.
+
+Kształt `person` pochodzi z biblioteki C4 wbudowanej w draw.io. Włącz ją raz: **More Shapes → Software → C4**. Pozostałe kształty są w rdzeniu draw.io.
 
 ---
 
@@ -107,7 +120,7 @@ Layout w draw.io jest ręczny — to jest cała przewaga tego narzędzia nad Mer
 - [ ] Bloczki tej samej kategorii mają tę samą szerokość, wszystko wyrównane do siatki 10 px
 - [ ] Żaden element nie jest jednocześnie kreskowany i wypełniony
 - [ ] Każda strzałka ma etykietę „czasownik + obiekt"; brak strzałek dwukierunkowych
-- [ ] Kolor koduje jedną oś; legenda obecna, jeśli kolor jest semantyczny
+- [ ] Kolor koduje wyłącznie zakres, kształt wyłącznie kategorię; legenda obecna
 - [ ] ≤ 15 elementów, ≤ 3 poziomy zagnieżdżenia
 - [ ] Tytuł, poziom C4, właściciel i miesiąc aktualizacji w lewym górnym rogu
 - [ ] Osadzony w markdownie z sensownym tekstem alternatywnym
@@ -128,11 +141,13 @@ Layout w draw.io jest ręczny — to jest cała przewaga tego narzędzia nad Mer
 
 ---
 
-## 8. Do rozstrzygnięcia
+## 8. Świadome odstępstwa od C4
 
-**Walec dla magazynów danych.** W palecie jest wariant `shape=cylinder3` obok domyślnego prostokąta. Za: najbardziej rozpoznawalny symbol w diagramach architektury, czytelnik widzi bazę bez czytania stereotypu. Przeciw: łamie regułę jednakowych wymiarów, gorzej mieści trójstrefową etykietę, i wprowadza drugą oś kodowania obok koloru — czyli to, przed czym ostrzega reguła 2.
+**Białe bloczki zamiast niebieskich.** C4 rysuje wypełnione, nasycone prostokąty z białym tekstem. Lepszy kontrast tekstu, czytelność w skali i w druku, a przede wszystkim: kolor zostaje wolny na kodowanie zakresu.
 
-Trzy wyjścia: (a) zostaje prostokąt, kształt nie koduje niczego; (b) walec jako jedyny wyjątek, z etykietą dwustrefową; (c) walec **zastępuje** kolorowy tint — magazyny stają się białe jak reszta i odróżnia je wyłącznie kształt. Wariant (c) jest najbardziej spójny z zasadą „jedna oś na diagram".
+**Stereotyp nad nazwą, w guillemetach.** C4 stawia typ *pod* nazwą, w nawiasach kwadratowych: `[Container: .NET 8]`. My zostajemy przy `«Microservice · .NET 8»` nad nazwą. Argument za wersją C4 jest mocny — nazwa jest najważniejsza, a czyta się od góry. Argument za naszą: nazwa jest optycznie wyśrodkowana między dwiema mniejszymi liniami, blok jest symetryczny, a zespół już tak czyta te diagramy. Świadomie zostawiamy jak jest; gdyby to miało się zmienić, jest to zmiana jednej funkcji w generatorze.
+
+**Ikony Azure na topologii.** C4 nic o nich nie mówi. U nas — dopuszczalne jako dekoracja maks. 32 px w rogu bloczka, nigdy zamiast bloczka. Albo wszystkie elementy danego typu mają ikonę, albo żaden.
 
 ---
 
