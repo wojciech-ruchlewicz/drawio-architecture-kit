@@ -35,7 +35,7 @@ Nazwy po angielsku, kebab-case, bez wersji i dat (od tego jest git). Jeden diagr
 ![Order Management – komponenty logiczne](diagrams/order-management-components.drawio.svg)
 ```
 
-**Ustawienia diagramu** (w plikach z `templates/` i `examples/` są już ustawione – nowy diagram zaczynaj od kopii):
+**Ustawienia diagramu** – nowy diagram zaczynaj od kopii [`templates/blank.drawio.svg`](../templates/blank.drawio.svg), który ma je już ustawione:
 
 - **Adaptive Colors: Automatic** (`adaptiveColors="auto"`) – draw.io sam przelicza paletę na tryb ciemny, zachowując odcień. Dlatego **nie ustawiamy tła strony** na białe: wymuszenie tła psuje adaptację.
 - **Page View: wyłączony** (`page="0"`) – diagram architektoniczny nie jest kartką A4.
@@ -155,6 +155,7 @@ Layout w draw.io jest ręczny – to jest cała przewaga tego narzędzia nad Mer
 
 | Plik | Rola |
 |---|---|
+| [`templates/blank.drawio.svg`](../templates/blank.drawio.svg) | Pusty diagram z gotowymi ustawieniami – punkt startu każdego nowego pliku |
 | [`templates/palette.drawio.svg`](../templates/palette.drawio.svg) | Paleta – otwórz obok i kopiuj z niej elementy |
 | [`examples/components-example.drawio.svg`](../examples/components-example.drawio.svg) | Kompletny diagram komponentów |
 | [`examples/topology-example.drawio.svg`](../examples/topology-example.drawio.svg) | Kompletny diagram topologii |

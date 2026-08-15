@@ -37,6 +37,7 @@ H_PIPE, H_PERSON = 60, 110
 H_CYL_S, H_PIPE_S, H_PERSON_S = 60, 50, 80
 RADIUS, RADIUS_AREA = 12, 16
 FONT = "Helvetica, Arial, sans-serif"
+SWATCH_CHAR, SWATCH_SIZE = "\u25a0", 15   # ■ U+25A0, powiększony względem 11 px tekstu
 
 # ══════════════════════════════════════════════════════════ STYLE draw.io
 
@@ -142,7 +143,8 @@ class Diagram:
                          size=size, color=color, bold=bold, align=align,
                          style=TEXT_STYLE % (align, size, color, "fontStyle=1;" if bold else ""),
                          value=SWATCH_RE.sub(
-                             lambda m: '<font color="%s">\u25a0</font> ' % m.group(1), content))
+                             lambda m: '<font color="%s" style="font-size:%dpx">%s</font> '
+                             % (m.group(1), SWATCH_SIZE, SWATCH_CHAR), content))
 
     def swatch(self, x, y, w, h, fill, stroke, dashed=False, parent="1", shape="rect"):
         return self._add(kind="swatch", shape=shape, x=x, y=y, w=w, h=h, parent=parent,
@@ -235,7 +237,7 @@ def runs(line):
     for m in SWATCH_RE.finditer(line):
         if m.start() > pos:
             out.append((line[pos:m.start()], None))
-        out.append(("\u25a0 ", m.group(1)))
+        out.append((SWATCH_CHAR + " ", m.group(1)))
         pos = m.end()
     if pos < len(line):
         out.append((line[pos:], None))
@@ -341,7 +343,8 @@ def render_text(it):
                                 it["bold"], anchor))
         else:
             spans = "".join(
-                ('<tspan fill="%s">%s</tspan>' % (col, esc(txt))) if col else esc(txt)
+                ('<tspan fill="%s" font-size="%d">%s</tspan>' % (col, SWATCH_SIZE, esc(txt)))
+                if col else esc(txt)
                 for txt, col in parts)
             out.append('<text x="%g" y="%g" font-family="%s" font-size="%d" fill="%s"%s '
                        'text-anchor="%s">%s</text>'
@@ -665,9 +668,19 @@ t.text(40, 630, 900, 16,
        "on the component diagram.", FS_SMALL, TEXT_MUTED)
 
 
+# ══════════════════════════════════════════════════════════ BLANK
+
+# Pusty diagram z komplet ustawień (adaptiveColors, page=0, brak tła, siatka 10).
+# Zostaje tylko nagłówek, bo wymaga go checklista – nadpisz i rysuj.
+b = Diagram("Diagram")
+b.text(40, 24, 800, 26, "Area – diagram type", FS_TITLE, TEXT_PRIMARY, True)
+b.text(40, 52, 800, 16, "Level: C4 L2 | Owner: Team | Updated: YYYY-MM")
+
+
 # ══════════════════════════════════════════════════════════ ZAPIS
 
 for path, diagram in [
+    ("templates/blank.drawio.svg", b),
     ("templates/palette.drawio.svg", p),
     ("examples/components-example.drawio.svg", c),
     ("examples/topology-example.drawio.svg", t),

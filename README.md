@@ -5,15 +5,16 @@ Zasady i gotowe elementy do rysowania diagramów architektonicznych w draw.io, t
 | Ścieżka | Co to |
 |---|---|
 | [`docs/01-spec-stylu.md`](docs/01-spec-stylu.md) | Zasady: kiedy draw.io a kiedy Mermaid, format pliku, poziomy C4, reguły wizualne, układ, checklista |
+| [`templates/blank.drawio.svg`](templates/blank.drawio.svg) | **Pusty diagram** z gotowymi ustawieniami. Skopiuj i rysuj |
 | [`templates/palette.drawio.svg`](templates/palette.drawio.svg) | Paleta – wszystkie elementy z podpisanymi kolorami i wymiarami |
 | [`examples/components-example.drawio.svg`](examples/components-example.drawio.svg) | Kompletny diagram komponentów |
 | [`examples/topology-example.drawio.svg`](examples/topology-example.drawio.svg) | Kompletny diagram topologii |
-| [`tools/gen.py`](tools/gen.py) | Generator wszystkich trzech plików. Zmiana stylu = edycja stałych na górze skryptu i `python3 tools/gen.py`. Bez zależności. |
+| [`tools/gen.py`](tools/gen.py) | Generator wszystkich czterech plików. Zmiana stylu = edycja stałych na górze skryptu i `python3 tools/gen.py`. Bez zależności. |
 
 ## Jak zacząć
 
 1. Zainstaluj wtyczkę VS Code **Draw.io Integration** (`hediet.vscode-drawio`).
-2. Skopiuj `templates/palette.drawio.svg` do `docs/diagrams/<obszar>-components.drawio.svg`, otwórz i wyczyść kanwę – dostajesz plik z już poprawnymi ustawieniami diagramu.
+2. Skopiuj `templates/blank.drawio.svg` do `docs/diagrams/<obszar>-components.drawio.svg` i otwórz. Ustawienia diagramu są już poprawne, zostaje nadpisać nagłówek.
 3. Trzymaj paletę otwartą w drugiej zakładce i kopiuj z niej elementy (`Ctrl+C` / `Ctrl+V` działa między zakładkami draw.io).
 
 Nie używamy bibliotek kształtów ani Scratchpada: Scratchpad żyje w `localStorage` przeglądarki i nie da się go współdzielić przez repo, a biblioteki wymagają konfiguracji per-workspace. Paleta w pliku jest prostsza i wersjonuje się razem z resztą.
