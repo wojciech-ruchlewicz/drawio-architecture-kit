@@ -41,3 +41,7 @@ Further examples and the full description of the notation: [`docs/diagrams.md`](
 | [`templates/palette.drawio.svg`](templates/palette.drawio.svg) | Element palette |
 | [`examples/`](examples/) | Complete component and topology diagrams |
 | [`tools/gen.py`](tools/gen.py) | Generator for the palette, the template and the examples |
+
+## Licence
+
+[MIT](LICENSE)
